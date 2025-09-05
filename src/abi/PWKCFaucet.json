@@ -1,0 +1,7 @@
+[
+  "function claim()",
+  "function lastClaim(address) view returns (uint256)",
+  "function faucetAmount() view returns (uint256)",
+  "function cooldown() view returns (uint256)",
+  "function fund(uint256)"
+]
