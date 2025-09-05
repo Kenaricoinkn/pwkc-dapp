@@ -134,28 +134,51 @@ body { font-family: 'Poppins', sans-serif; }
 
   // --- Wallet Connect ---
   async function connectWallet() {
-    if(typeof window.ethereum !== "undefined"){
-      try{
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-        await provider.send("eth_requestAccounts",[]);
-        signer = provider.getSigner();
-        const address = await signer.getAddress();
-        walletMenuBtn.textContent = `${address.substring(0,6)}...${address.slice(-4)}`;
-        mobileWalletBtn.textContent = `${address.substring(0,6)}...${address.slice(-4)}`;
-        initContracts();
-        alert("✅ Wallet connected: "+address);
-      }catch(err){
-        console.error(err);
-        alert("❌ Gagal connect wallet, cek konsol!");
-      }
-    } else alert("Metamask / TrustWallet tidak ditemukan!");
-  }
+  async function connectWallet() {
+  try {
+    // Detect provider: Metamask or OKX DApp
+    let detectedProvider = null;
+    if (window.ethereum) detectedProvider = window.ethereum;
+    else if (window.okxwallet) detectedProvider = window.okxwallet;
 
-  function disconnectWallet(){
-    provider = signer = token = faucet = staking = nft = null;
-    walletMenuBtn.textContent = "🔗 Connect";
-    mobileWalletBtn.textContent = "🔗 Connect";
+    if (!detectedProvider) {
+      alert("Metamask / OKX Wallet tidak ditemukan!");
+      return;
+    }
+
+    provider = new ethers.providers.Web3Provider(detectedProvider);
+    await provider.send("eth_requestAccounts", []);
+    signer = provider.getSigner();
+    const address = await signer.getAddress();
+
+    // Update UI
+    walletMenuBtn.textContent = `${address.substring(0,6)}...${address.slice(-4)}`;
+    mobileWalletBtn.textContent = `${address.substring(0,6)}...${address.slice(-4)}`;
+    initContracts();
+    console.log("✅ Wallet connected:", address);
+
+    // Listen for account changes
+    detectedProvider.on("accountsChanged", (accounts) => {
+      if(accounts.length > 0){
+        walletMenuBtn.textContent = `${accounts[0].substring(0,6)}...${accounts[0].slice(-4)}`;
+        mobileWalletBtn.textContent = `${accounts[0].substring(0,6)}...${accounts[0].slice(-4)}`;
+      } else disconnectWallet();
+    });
+
+    // Listen for network changes
+    detectedProvider.on("chainChanged", () => window.location.reload());
+
+  } catch(err) {
+    console.error("Wallet connection error:", err);
+    alert("❌ Gagal connect wallet, cek konsol!");
   }
+}
+
+function disconnectWallet(){
+  provider = signer = token = faucet = staking = nft = null;
+  walletMenuBtn.textContent = "🔗 Connect";
+  mobileWalletBtn.textContent = "🔗 Connect";
+}
 
   function initContracts(){
     token = new ethers.Contract(tokenAddress, tokenABI, signer);
