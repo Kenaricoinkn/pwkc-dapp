@@ -132,45 +132,56 @@ body { font-family: 'Poppins', sans-serif; }
   const stakingAddress = "0x752D55A951eb4636c557D48a2664Bc1dD2C777AB";
   const nftAddress = "0x0B0a0d31806e74A9544a8a767866dcDbAE1C1535";
 
-  // --- Wallet Connect ---
-  async function connectWallet() {
+// --- Wallet Connect ---
+let provider, signer;
+
+// Pastikan tombol sudah di-definisi
+const walletMenuBtn = document.getElementById("walletMenuBtn");
+const mobileWalletBtn = document.getElementById("mobileWalletBtn"); // harus ada di HTML
+const connectWalletBtn = document.getElementById("connectWalletBtn");
+const disconnectBtn = document.getElementById("disconnectBtn");
+
+// Connect Wallet
+async function connectWallet() {
   let detectedProvider;
 
-  // 🚨 Tempel di sini
-  if (window.ethereum && window.ethereum.isMetaMask) {
-    detectedProvider = window.ethereum; // Metamask Extension
-  } else if (window.okxwallet) {
-    detectedProvider = window.okxwallet; // OKX DApp Browser
-  } else if (window.ethereum) {
-    detectedProvider = window.ethereum; // fallback
-  } else {
+  if (window.ethereum && window.ethereum.isMetaMask) detectedProvider = window.ethereum;
+  else if (window.okxwallet) detectedProvider = window.okxwallet;
+  else if (window.ethereum) detectedProvider = window.ethereum;
+  else {
     alert("⚠️ Wallet tidak ditemukan! Gunakan Metamask atau OKX DApp Browser.");
     return;
   }
 
   try {
     // Request account
-    await detectedProvider.request({ method: "eth_requestAccounts" });
+    const accounts = await detectedProvider.request({ method: "eth_requestAccounts" });
+    if (!accounts || accounts.length === 0) throw new Error("User rejected connection");
 
     // Buat provider & signer
-    provider = new ethers.providers.Web3Provider(detectedProvider);
+    provider = new ethers.providers.Web3Provider(detectedProvider, "any");
     signer = provider.getSigner();
     const address = await signer.getAddress();
 
     // Update UI tombol
     walletMenuBtn.textContent = `${address.substring(0,6)}...${address.slice(-4)}`;
-    mobileWalletBtn.textContent = `${address.substring(0,6)}...${address.slice(-4)}`;
+    if (mobileWalletBtn) mobileWalletBtn.textContent = `${address.substring(0,6)}...${address.slice(-4)}`;
 
-    initContracts(); // inisialisasi kontrak
+    initContracts(); // panggil kontrak
     console.log("✅ Wallet connected:", address);
 
-    // Listen for changes
+    // Hapus listener lama agar tidak double-bind
+    detectedProvider.removeAllListeners("accountsChanged");
+    detectedProvider.removeAllListeners("chainChanged");
+
+    // Listen account & network change
     detectedProvider.on("accountsChanged", (accounts) => {
-      if(accounts.length>0){
+      if(accounts.length > 0) {
         walletMenuBtn.textContent = `${accounts[0].substring(0,6)}...${accounts[0].slice(-4)}`;
-        mobileWalletBtn.textContent = `${accounts[0].substring(0,6)}...${accounts[0].slice(-4)}`;
+        if (mobileWalletBtn) mobileWalletBtn.textContent = `${accounts[0].substring(0,6)}...${accounts[0].slice(-4)}`;
       } else disconnectWallet();
     });
+
     detectedProvider.on("chainChanged", () => window.location.reload());
 
   } catch(err) {
@@ -179,11 +190,22 @@ body { font-family: 'Poppins', sans-serif; }
   }
 }
 
+// Disconnect Wallet
 function disconnectWallet(){
-  provider = signer = token = faucet = staking = nft = null;
+  provider = signer = null;
+  if (typeof token !== "undefined") token = null;
+  if (typeof faucet !== "undefined") faucet = null;
+  if (typeof staking !== "undefined") staking = null;
+  if (typeof nft !== "undefined") nft = null;
+
   walletMenuBtn.textContent = "🔗 Connect";
-  mobileWalletBtn.textContent = "🔗 Connect";
+  if (mobileWalletBtn) mobileWalletBtn.textContent = "🔗 Connect";
+  console.log("⚡ Wallet disconnected");
 }
+
+// Event listeners tombol
+connectWalletBtn.addEventListener("click", connectWallet);
+disconnectBtn.addEventListener("click", disconnectWallet);
 
   function initContracts(){
     token = new ethers.Contract(tokenAddress, tokenABI, signer);
