@@ -16,43 +16,44 @@
 <body class="bg-[#0a0f1f] text-gray-200">
 
   <!-- Navbar -->
-  <nav class="bg-[#111827] px-4 py-3 flex justify-between items-center shadow-md">
-  <div class="flex items-center gap-2">
-    <!-- Logo -->
-    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 100 100">
-      <circle cx="50" cy="50" r="48" fill="#1E3A8A" stroke="white" stroke-width="3"/>
-      <text x="50%" y="55%" text-anchor="middle" fill="white" font-size="24" font-family="Arial" dy=".3em">PWKC</text>
-    </svg>
-    <span class="text-xl font-bold tracking-wide text-indigo-400">PurwakartaChain</span>
-  </div>
+  <nav class="bg-[#111827] px-4 py-3 flex justify-between items-center shadow-md relative z-50">
+    <div class="flex items-center gap-2">
+      <!-- Logo -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="48" fill="#1E3A8A" stroke="white" stroke-width="3"/>
+        <text x="50%" y="55%" text-anchor="middle" fill="white" font-size="24" font-family="Arial" dy=".3em">PWKC</text>
+      </svg>
+      <span class="text-xl font-bold tracking-wide text-indigo-400">PurwakartaChain</span>
+    </div>
 
-  <!-- Desktop Menu -->
-  <ul class="hidden md:flex gap-6 font-semibold items-center">
-    <li><a href="#" onclick="openTab('home')" class="hover:text-indigo-400">Home</a></li>
-    <li><a href="#" onclick="openTab('leaderboard')" class="hover:text-indigo-400">Leaderboard</a></li>
-    <li><a href="#" onclick="openTab('staking')" class="hover:text-indigo-400">Staking</a></li>
-    <li><a href="#" onclick="openTab('mint')" class="hover:text-indigo-400">Mint NFT</a></li>
-    <li class="relative">
-      <button id="walletMenuBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg">🔗 Connect</button>
-      <div id="walletDropdown" class="absolute right-0 mt-2 w-40 bg-[#1f2937] rounded-lg shadow-lg hidden flex-col">
-        <button id="connectWalletBtn" class="px-4 py-2 hover:bg-[#374151] text-white text-sm">Connect Wallet</button>
-        <button id="disconnectBtn" class="px-4 py-2 hover:bg-[#374151] text-white text-sm">Disconnect</button>
-      </div>
-    </li>
-  </ul>
+    <!-- Desktop Menu -->
+    <ul class="hidden md:flex gap-6 font-semibold items-center">
+      <li><a href="#" onclick="openTab('home')" class="hover:text-indigo-400">Home</a></li>
+      <li><a href="#" onclick="openTab('leaderboard')" class="hover:text-indigo-400">Leaderboard</a></li>
+      <li><a href="#" onclick="openTab('staking')" class="hover:text-indigo-400">Staking</a></li>
+      <li><a href="#" onclick="openTab('mint')" class="hover:text-indigo-400">Mint NFT</a></li>
+      <li class="relative">
+        <button id="walletMenuBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg z-50">🔗 Connect</button>
+        <div id="walletDropdown" class="absolute right-0 mt-2 w-40 bg-[#1f2937] rounded-lg shadow-lg hidden flex-col z-40">
+          <button id="connectWalletBtn" class="px-4 py-2 hover:bg-[#374151] text-white text-sm">Connect Wallet</button>
+          <button id="disconnectBtn" class="px-4 py-2 hover:bg-[#374151] text-white text-sm">Disconnect</button>
+        </div>
+      </li>
+    </ul>
 
-  <!-- Hamburger for Mobile -->
-  <button id="menuBtn" class="md:hidden text-2xl">☰</button>
-  <ul id="mobileMenu" class="md:hidden hidden flex-col bg-[#111827] px-4 py-3 space-y-3 font-semibold absolute top-full right-0 w-48 rounded-lg shadow-lg">
-    <li><a href="#" onclick="openTab('home'); toggleMobileMenu()" class="hover:text-indigo-400">Home</a></li>
-    <li><a href="#" onclick="openTab('leaderboard'); toggleMobileMenu()" class="hover:text-indigo-400">Leaderboard</a></li>
-    <li><a href="#" onclick="openTab('staking'); toggleMobileMenu()" class="hover:text-indigo-400">Staking</a></li>
-    <li><a href="#" onclick="openTab('mint'); toggleMobileMenu()" class="hover:text-indigo-400">Mint NFT</a></li>
-    <li>
-      <button id="mobileWalletBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg w-full">🔗 Connect</button>
-    </li>
-  </ul>
-</nav>
+    <!-- Hamburger for Mobile -->
+    <button id="menuBtn" class="md:hidden text-2xl z-50">☰</button>
+    <ul id="mobileMenu" class="md:hidden hidden flex-col bg-[#111827] px-4 py-3 space-y-3 font-semibold absolute top-full right-0 w-48 rounded-lg shadow-lg z-40">
+      <li><a href="#" onclick="openTab('home'); toggleMobileMenu()" class="hover:text-indigo-400">Home</a></li>
+      <li><a href="#" onclick="openTab('leaderboard'); toggleMobileMenu()" class="hover:text-indigo-400">Leaderboard</a></li>
+      <li><a href="#" onclick="openTab('staking'); toggleMobileMenu()" class="hover:text-indigo-400">Staking</a></li>
+      <li><a href="#" onclick="openTab('mint'); toggleMobileMenu()" class="hover:text-indigo-400">Mint NFT</a></li>
+      <li>
+        <button id="mobileWalletBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg w-full">🔗 Connect</button>
+      </li>
+    </ul>
+  </nav>
+
 
   <!-- Content -->
   <div class="p-6">
