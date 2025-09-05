@@ -6,93 +6,107 @@
   <title>PurwakartaChain (PWKC) DApp</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
-  <!-- Favicon (SVG PWKC) -->
+  <!-- Favicon -->
   <link rel="icon" href="data:image/svg+xml,
     <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
-      <circle cx='50' cy='50' r='48' fill='%234F46E5' stroke='white' stroke-width='4'/>
-      <text x='50%25' y='55%25' text-anchor='middle' fill='white' font-size='28' font-family='Arial' dy='.3em'>PWKC</text>
+      <circle cx='50' cy='50' r='48' fill='%230a0f1f' stroke='%234F46E5' stroke-width='4'/>
+      <text x='50%25' y='55%25' text-anchor='middle' fill='%23ffffff' font-size='28' font-family='Arial' dy='.3em'>PWKC</text>
     </svg>">
 
   <style>
+    body { font-family: 'Poppins', sans-serif; }
     .tab-content { display: none; }
     .tab-active { display: block; }
   </style>
 </head>
-<body class="bg-gray-100 text-gray-900">
+<body class="bg-[#0a0f1f] text-gray-200">
 
   <!-- Navbar -->
-  <nav class="bg-indigo-600 text-white px-4 py-3 flex justify-between items-center">
+  <nav class="bg-[#111827] px-4 py-3 flex justify-between items-center shadow-md">
     <div class="flex items-center gap-2">
-      <!-- Inline SVG Logo -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r="48" fill="#4F46E5" stroke="white" stroke-width="4"/>
-        <text x="50%" y="55%" text-anchor="middle" fill="white" font-size="28" font-family="Arial" dy=".3em">PWKC</text>
+      <!-- Logo -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="48" fill="#1E3A8A" stroke="white" stroke-width="3"/>
+        <text x="50%" y="55%" text-anchor="middle" fill="white" font-size="24" font-family="Arial" dy=".3em">PWKC</text>
       </svg>
-      <span class="text-xl font-bold">PurwakartaChain</span>
+      <span class="text-xl font-bold tracking-wide text-indigo-400">PurwakartaChain</span>
     </div>
-    <button id="menuBtn" class="md:hidden">☰</button>
-    <ul id="menu" class="hidden md:flex gap-4">
-      <li><a href="#" onclick="openTab('home')">Home</a></li>
-      <li><a href="#" onclick="openTab('leaderboard')">Leaderboard</a></li>
-      <li><a href="#" onclick="openTab('staking')">Staking</a></li>
-      <li><a href="#" onclick="openTab('mint')">Mint NFT</a></li>
+    <!-- Hamburger -->
+    <button id="menuBtn" class="md:hidden text-2xl">☰</button>
+    <!-- Menu -->
+    <ul id="menu" class="hidden md:flex gap-6 font-semibold">
+      <li><a href="#" onclick="openTab('home')" class="hover:text-indigo-400">Home</a></li>
+      <li><a href="#" onclick="openTab('leaderboard')" class="hover:text-indigo-400">Leaderboard</a></li>
+      <li><a href="#" onclick="openTab('staking')" class="hover:text-indigo-400">Staking</a></li>
+      <li><a href="#" onclick="openTab('mint')" class="hover:text-indigo-400">Mint NFT</a></li>
     </ul>
   </nav>
+
+  <!-- Mobile Menu -->
+  <ul id="mobileMenu" class="md:hidden hidden flex-col bg-[#111827] px-4 py-3 space-y-3 font-semibold">
+    <li><a href="#" onclick="openTab('home');closeMenu()" class="hover:text-indigo-400">Home</a></li>
+    <li><a href="#" onclick="openTab('leaderboard');closeMenu()" class="hover:text-indigo-400">Leaderboard</a></li>
+    <li><a href="#" onclick="openTab('staking');closeMenu()" class="hover:text-indigo-400">Staking</a></li>
+    <li><a href="#" onclick="openTab('mint');closeMenu()" class="hover:text-indigo-400">Mint NFT</a></li>
+  </ul>
 
   <!-- Content -->
   <div class="p-6">
 
     <!-- Home -->
     <div id="home" class="tab-content tab-active">
-      <h1 class="text-2xl font-bold mb-4">Selamat Datang di PurwakartaChain (PWKC)</h1>
-      <p class="mb-2">Dashboard resmi token PWKC.</p>
-      <button id="connectBtn" class="bg-indigo-600 text-white px-4 py-2 rounded">Connect Wallet</button>
-      <p id="walletAddress" class="mt-2 text-gray-700"></p>
+      <h1 class="text-3xl font-bold mb-4 text-indigo-400">Selamat Datang 🚀</h1>
+      <p class="mb-4 text-gray-300">Dashboard resmi <span class="text-indigo-400 font-semibold">PurwakartaChain (PWKC)</span>.</p>
+      <button id="connectBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-lg shadow-lg">🔗 Connect Wallet</button>
+      <p id="walletAddress" class="mt-4 text-gray-300"></p>
     </div>
 
     <!-- Leaderboard -->
     <div id="leaderboard" class="tab-content">
-      <h1 class="text-2xl font-bold mb-4">Leaderboard</h1>
-      <table class="w-full bg-white shadow rounded">
-        <thead class="bg-gray-200">
-          <tr>
-            <th class="px-4 py-2 text-left">Rank</th>
-            <th class="px-4 py-2 text-left">Wallet</th>
-            <th class="px-4 py-2 text-left">Balance</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td class="px-4 py-2">1</td><td>0x1234...</td><td>1000 PWKC</td></tr>
-          <tr><td class="px-4 py-2">2</td><td>0xabcd...</td><td>750 PWKC</td></tr>
-          <tr><td class="px-4 py-2">3</td><td>0x9876...</td><td>500 PWKC</td></tr>
-        </tbody>
-      </table>
+      <h1 class="text-3xl font-bold mb-4 text-indigo-400">🏆 Leaderboard</h1>
+      <div class="overflow-x-auto">
+        <table class="w-full bg-[#1f2937] text-gray-200 rounded-lg shadow-lg">
+          <thead class="bg-indigo-600 text-white">
+            <tr>
+              <th class="px-4 py-2 text-left">Rank</th>
+              <th class="px-4 py-2 text-left">Wallet</th>
+              <th class="px-4 py-2 text-left">Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="hover:bg-[#374151]"><td class="px-4 py-2">1</td><td>0x1234...</td><td>1000 PWKC</td></tr>
+            <tr class="hover:bg-[#374151]"><td class="px-4 py-2">2</td><td>0xabcd...</td><td>750 PWKC</td></tr>
+            <tr class="hover:bg-[#374151]"><td class="px-4 py-2">3</td><td>0x9876...</td><td>500 PWKC</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <!-- Staking -->
     <div id="staking" class="tab-content">
-      <h1 class="text-2xl font-bold mb-4">Staking / Faucet</h1>
-      <p class="mb-2">Klaim token PWKC atau staking token kamu.</p>
-      <div class="flex gap-2">
-        <button class="bg-green-600 text-white px-4 py-2 rounded">Claim Faucet</button>
-        <button class="bg-purple-600 text-white px-4 py-2 rounded">Stake Tokens</button>
-        <button class="bg-yellow-600 text-white px-4 py-2 rounded">Claim Rewards</button>
+      <h1 class="text-3xl font-bold mb-4 text-indigo-400">💎 Staking / Faucet</h1>
+      <p class="mb-4 text-gray-300">Klaim token atau staking untuk reward otomatis.</p>
+      <div class="flex flex-wrap gap-3">
+        <button class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg">💰 Claim Faucet</button>
+        <button class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg shadow-lg">📥 Stake Tokens</button>
+        <button class="bg-yellow-600 hover:bg-yellow-500 text-white px-4 py-2 rounded-lg shadow-lg">🎁 Claim Rewards</button>
       </div>
     </div>
 
     <!-- Mint NFT -->
     <div id="mint" class="tab-content">
-      <h1 class="text-2xl font-bold mb-4">Mint NFT</h1>
-      <p class="mb-2">Buat NFT khusus untuk komunitas PWKC.</p>
-      <button class="bg-pink-600 text-white px-4 py-2 rounded">Mint NFT</button>
+      <h1 class="text-3xl font-bold mb-4 text-indigo-400">🎨 Mint NFT</h1>
+      <p class="mb-4 text-gray-300">Buat NFT spesial untuk komunitas PWKC.</p>
+      <button class="bg-pink-600 hover:bg-pink-500 text-white px-5 py-2 rounded-lg shadow-lg">✨ Mint NFT</button>
     </div>
 
   </div>
 
   <!-- Script -->
   <script>
-    // Tab Switching
+    // Tabs
     const tabs = ["home","leaderboard","staking","mint"];
     function openTab(id) {
       tabs.forEach(tab => {
@@ -101,17 +115,19 @@
       document.getElementById(id).classList.add("tab-active");
     }
 
-    // Hamburger menu
+    // Hamburger toggle
     const menuBtn = document.getElementById("menuBtn");
-    const menu = document.getElementById("menu");
+    const mobileMenu = document.getElementById("mobileMenu");
     menuBtn.addEventListener("click", () => {
-      menu.classList.toggle("hidden");
+      mobileMenu.classList.toggle("hidden");
     });
+    function closeMenu() {
+      mobileMenu.classList.add("hidden");
+    }
 
-    // Wallet Connect
+    // Wallet connect
     const connectBtn = document.getElementById("connectBtn");
     const walletAddress = document.getElementById("walletAddress");
-
     async function connectWallet() {
       if (typeof window.ethereum !== "undefined") {
         try {
@@ -121,14 +137,12 @@
           const address = await signer.getAddress();
           walletAddress.textContent = "✅ Connected: " + address;
         } catch (err) {
-          console.error(err);
           walletAddress.textContent = "❌ Gagal connect wallet!";
         }
       } else {
         alert("Metamask / TrustWallet tidak ditemukan!");
       }
     }
-
     connectBtn.addEventListener("click", connectWallet);
   </script>
 
