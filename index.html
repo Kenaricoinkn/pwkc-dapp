@@ -1,11 +1,91 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>PWKC Test</title>
-  </head>
-  <body>
-    <h1 style="color: green">Hello PWKC!</h1>
-    <p>Kalau tulisan ini muncul, deploy berhasil 🎉</p>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PWKC DApp</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .tab-content { display: none; }
+    .tab-active { display: block; }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+  <!-- Navbar -->
+  <nav class="bg-indigo-600 text-white px-4 py-3 flex justify-between items-center">
+    <div class="text-xl font-bold">PWKC DApp</div>
+    <button id="menuBtn" class="md:hidden">☰</button>
+    <ul id="menu" class="hidden md:flex gap-4">
+      <li><a href="#" onclick="openTab('home')">Home</a></li>
+      <li><a href="#" onclick="openTab('leaderboard')">Leaderboard</a></li>
+      <li><a href="#" onclick="openTab('staking')">Staking</a></li>
+      <li><a href="#" onclick="openTab('mint')">Mint NFT</a></li>
+    </ul>
+  </nav>
+
+  <!-- Content -->
+  <div class="p-6">
+
+    <!-- Home -->
+    <div id="home" class="tab-content tab-active">
+      <h1 class="text-2xl font-bold mb-4">Selamat Datang di PWKC</h1>
+      <p class="mb-2">Dashboard sederhana untuk token PWKC.</p>
+      <button class="bg-indigo-600 text-white px-4 py-2 rounded">Connect Wallet</button>
+    </div>
+
+    <!-- Leaderboard -->
+    <div id="leaderboard" class="tab-content">
+      <h1 class="text-2xl font-bold mb-4">Leaderboard</h1>
+      <table class="w-full bg-white shadow rounded">
+        <thead class="bg-gray-200">
+          <tr>
+            <th class="px-4 py-2 text-left">Rank</th>
+            <th class="px-4 py-2 text-left">Wallet</th>
+            <th class="px-4 py-2 text-left">Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="px-4 py-2">1</td><td>0x1234...</td><td>1000 PWKC</td></tr>
+          <tr><td class="px-4 py-2">2</td><td>0xabcd...</td><td>750 PWKC</td></tr>
+          <tr><td class="px-4 py-2">3</td><td>0x9876...</td><td>500 PWKC</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Staking -->
+    <div id="staking" class="tab-content">
+      <h1 class="text-2xl font-bold mb-4">Staking / Faucet</h1>
+      <p class="mb-2">Klaim token PWKC atau staking token kamu.</p>
+      <button class="bg-green-600 text-white px-4 py-2 rounded">Claim Faucet</button>
+      <button class="bg-purple-600 text-white px-4 py-2 rounded ml-2">Stake Tokens</button>
+    </div>
+
+    <!-- Mint NFT -->
+    <div id="mint" class="tab-content">
+      <h1 class="text-2xl font-bold mb-4">Mint NFT</h1>
+      <p class="mb-2">Buat NFT khusus untuk komunitas PWKC.</p>
+      <button class="bg-pink-600 text-white px-4 py-2 rounded">Mint NFT</button>
+    </div>
+
+  </div>
+
+  <!-- Script -->
+  <script>
+    const tabs = ["home","leaderboard","staking","mint"];
+    function openTab(id) {
+      tabs.forEach(tab => {
+        document.getElementById(tab).classList.remove("tab-active");
+      });
+      document.getElementById(id).classList.add("tab-active");
+    }
+
+    const menuBtn = document.getElementById("menuBtn");
+    const menu = document.getElementById("menu");
+    menuBtn.addEventListener("click", () => {
+      menu.classList.toggle("hidden");
+    });
+  </script>
+
+</body>
 </html>
