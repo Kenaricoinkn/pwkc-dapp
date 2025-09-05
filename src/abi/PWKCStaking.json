@@ -1,9 +1,0 @@
-[
-  "function stake(uint256)",
-  "function unstake(uint256)",
-  "function claimReward()",
-  "function pendingReward(address) view returns (uint256)",
-  "function getLeaderboard() view returns (address[])",
-  "function stakes(address) view returns (uint256 amount, uint256 rewardDebt, uint256 since)",
-  "function apyBasisPoints() view returns (uint256)"
-]

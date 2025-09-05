@@ -1,5 +1,0 @@
-[
-  "function mint() payable",
-  "function mintFee() view returns (uint256)",
-  "function devWallet() view returns (address)"
-]
