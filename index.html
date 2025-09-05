@@ -7,7 +7,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-
   <style>
     body { font-family: 'Poppins', sans-serif; }
     .tab-content { display: none; }
@@ -17,41 +16,28 @@
 <body class="bg-[#0a0f1f] text-gray-200">
 
   <!-- Navbar -->
-  <nav class="bg-[#111827] px-4 py-3 shadow-md">
-    <div class="flex justify-between items-center">
+  <nav class="bg-[#111827] px-4 py-3 flex justify-between items-center shadow-md">
+    <div class="flex items-center gap-2">
       <!-- Logo -->
-      <div class="flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="48" fill="#1E3A8A" stroke="white" stroke-width="3"/>
-          <text x="50%" y="55%" text-anchor="middle" fill="white" font-size="24" font-family="Arial" dy=".3em">PWKC</text>
-        </svg>
-        <span class="text-xl font-bold tracking-wide text-indigo-400">PurwakartaChain</span>
-      </div>
-
-      <!-- Menu + Wallet -->
-      <div class="flex items-center gap-6">
-        <ul id="menu" class="hidden md:flex gap-6 font-semibold">
-          <li><a href="#" onclick="openTab('home')" class="hover:text-indigo-400">Home</a></li>
-          <li><a href="#" onclick="openTab('leaderboard')" class="hover:text-indigo-400">Leaderboard</a></li>
-          <li><a href="#" onclick="openTab('staking')" class="hover:text-indigo-400">Staking</a></li>
-          <li><a href="#" onclick="openTab('mint')" class="hover:text-indigo-400">Mint NFT</a></li>
-        </ul>
-        <!-- Connect Wallet Button -->
-        <button id="connectBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg shadow-lg text-sm">
-          🔗 Connect Wallet
-        </button>
-      </div>
-
-      <!-- Hamburger -->
-      <button id="menuBtn" class="md:hidden text-2xl">☰</button>
+      <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="48" fill="#1E3A8A" stroke="white" stroke-width="3"/>
+        <text x="50%" y="55%" text-anchor="middle" fill="white" font-size="24" font-family="Arial" dy=".3em">PWKC</text>
+      </svg>
+      <span class="text-xl font-bold tracking-wide text-indigo-400">PurwakartaChain</span>
     </div>
-
-    <!-- Mobile Menu -->
-    <ul id="mobileMenu" class="md:hidden hidden flex-col bg-[#111827] px-4 py-3 space-y-3 font-semibold">
-      <li><a href="#" onclick="openTab('home');closeMenu()" class="hover:text-indigo-400">Home</a></li>
-      <li><a href="#" onclick="openTab('leaderboard');closeMenu()" class="hover:text-indigo-400">Leaderboard</a></li>
-      <li><a href="#" onclick="openTab('staking');closeMenu()" class="hover:text-indigo-400">Staking</a></li>
-      <li><a href="#" onclick="openTab('mint');closeMenu()" class="hover:text-indigo-400">Mint NFT</a></li>
+    <!-- Menu -->
+    <ul class="hidden md:flex gap-6 font-semibold items-center">
+      <li><a href="#" onclick="openTab('home')" class="hover:text-indigo-400">Home</a></li>
+      <li><a href="#" onclick="openTab('leaderboard')" class="hover:text-indigo-400">Leaderboard</a></li>
+      <li><a href="#" onclick="openTab('staking')" class="hover:text-indigo-400">Staking</a></li>
+      <li><a href="#" onclick="openTab('mint')" class="hover:text-indigo-400">Mint NFT</a></li>
+      <li class="relative">
+        <button id="walletMenuBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg">🔗 Connect</button>
+        <div id="walletDropdown" class="absolute right-0 mt-2 w-40 bg-[#1f2937] rounded-lg shadow-lg hidden flex-col">
+          <button id="connectWalletBtn" class="px-4 py-2 hover:bg-[#374151] text-white text-sm">Connect Wallet</button>
+          <button id="disconnectBtn" class="px-4 py-2 hover:bg-[#374151] text-white text-sm">Disconnect</button>
+        </div>
+      </li>
     </ul>
   </nav>
 
@@ -76,10 +62,8 @@
               <th class="px-4 py-2 text-left">Balance</th>
             </tr>
           </thead>
-          <tbody>
-            <tr class="hover:bg-[#374151]"><td class="px-4 py-2">1</td><td>0x1234...</td><td>1000 PWKC</td></tr>
-            <tr class="hover:bg-[#374151]"><td class="px-4 py-2">2</td><td>0xabcd...</td><td>750 PWKC</td></tr>
-            <tr class="hover:bg-[#374151]"><td class="px-4 py-2">3</td><td>0x9876...</td><td>500 PWKC</td></tr>
+          <tbody id="leaderboardBody">
+            <!-- Dynamic -->
           </tbody>
         </table>
       </div>
@@ -88,10 +72,9 @@
     <!-- Staking -->
     <div id="staking" class="tab-content">
       <h1 class="text-3xl font-bold mb-4 text-indigo-400">💎 Staking / Faucet</h1>
-      <p class="mb-4 text-gray-300">Klaim token atau staking untuk reward otomatis.</p>
       <div class="flex flex-wrap gap-3">
         <button id="claimFaucetBtn" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg">💰 Claim Faucet</button>
-        <button id="stakeBtn" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg shadow-lg">📥 Stake Tokens</button>
+        <button id="stakeBtn" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg shadow-lg">📥 Stake 10 PWKC</button>
         <button id="claimRewardsBtn" class="bg-yellow-600 hover:bg-yellow-500 text-white px-4 py-2 rounded-lg shadow-lg">🎁 Claim Rewards</button>
       </div>
     </div>
@@ -99,7 +82,6 @@
     <!-- Mint NFT -->
     <div id="mint" class="tab-content">
       <h1 class="text-3xl font-bold mb-4 text-indigo-400">🎨 Mint NFT</h1>
-      <p class="mb-4 text-gray-300">Buat NFT spesial untuk komunitas PWKC.</p>
       <button id="mintNFTBtn" class="bg-pink-600 hover:bg-pink-500 text-white px-5 py-2 rounded-lg shadow-lg">✨ Mint NFT</button>
     </div>
 
@@ -107,107 +89,96 @@
 
   <!-- Script -->
   <script>
+    // --- Tabs ---
     const tabs = ["home","leaderboard","staking","mint"];
     function openTab(id) {
       tabs.forEach(tab => document.getElementById(tab).classList.remove("tab-active"));
       document.getElementById(id).classList.add("tab-active");
     }
 
-    // Hamburger toggle
-    const menuBtn = document.getElementById("menuBtn");
-    const mobileMenu = document.getElementById("mobileMenu");
-    menuBtn.addEventListener("click", () => {
-      mobileMenu.classList.toggle("hidden");
-    });
-    function closeMenu() {
-      mobileMenu.classList.add("hidden");
-    }
+    // --- Wallet Dropdown ---
+    const walletMenuBtn = document.getElementById("walletMenuBtn");
+    const walletDropdown = document.getElementById("walletDropdown");
+    walletMenuBtn.addEventListener("click", () => walletDropdown.classList.toggle("hidden"));
 
-    // Wallet connect
+    const connectWalletBtn = document.getElementById("connectWalletBtn");
+    const disconnectBtn = document.getElementById("disconnectBtn");
+
     let provider, signer, token, faucet, staking, nft;
-    const connectBtn = document.getElementById("connectBtn");
 
-    async function initContracts() {
-      const [tokenABI, faucetABI, stakingABI, nftABI] = await Promise.all([
-        fetch("abi/token.json").then(res => res.json()),
-        fetch("abi/faucet.json").then(res => res.json()),
-        fetch("abi/staking.json").then(res => res.json()),
-        fetch("abi/nft.json").then(res => res.json()),
-      ]);
+    // --- ABI (inline semua) ---
+    const tokenABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"}];
+    const stakingABI = [{"inputs":[{"internalType":"contract IERC20","name":"_token","type":"address"},{"internalType":"uint256","name":"_apyBps","type":"uint256"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"reward","type":"uint256"}],"name":"Claimed","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"Staked","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"Unstaked","type":"event"},{"inputs":[],"name":"apyBasisPoints","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"claimReward","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"fund","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"getLeaderboard","outputs":[{"internalType":"address[]","name":"","type":"address[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"leaderboard","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"pendingReward","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_bps","type":"uint256"}],"name":"setAPY","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"stake","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"stakes","outputs":[{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"uint256","name":"rewardDebt","type":"uint256"},{"internalType":"uint256","name":"since","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"token","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalStaked","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"unstake","outputs":[],"stateMutability":"nonpayable","type":"function"}];
+    const faucetABI = [{"inputs":[{"internalType":"contract IERC20","name":"_token","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"inputs":[],"name":"claim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"cooldown","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"faucetAmount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"fund","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"lastClaim","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_cooldown","type":"uint256"}],"name":"setCooldown","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_amount","type":"uint256"}],"name":"setFaucetAmount","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"token","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"}];
+    const nftABI =[{"inputs":[{"internalType":"address","name":"_devWallet","type":"address"},{"internalType":"uint256","name":"_mintFee","type":"uint256"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"approved","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"operator","type":"address"},{"indexed":false,"internalType":"bool","name":"approved","type":"bool"}],"name":"ApprovalForAll","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"approve","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"devWallet","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"getApproved","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"mint","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"mintFee","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"ownerOf","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"operator","type":"address"},{"internalType":"bool","name":"approved","type":"bool"}],"name":"setApprovalForAll","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_wallet","type":"address"}],"name":"setDevWallet","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_fee","type":"uint256"}],"name":"setMintFee","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"tokenURI","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"transferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"}];
 
-      token = new ethers.Contract("0x303C2c8e2551A86F71Ef74C32C4e1110Da53F11B", tokenABI, signer);
-      faucet = new ethers.Contract("0xBF121f3E9b8865C1a32EB0De7D77121D35c4E8a2", faucetABI, signer);
-      staking = new ethers.Contract("0x752D55A951eb4636c557D48a2664Bc1dD2C777AB", stakingABI, signer);
-      nft = new ethers.Contract("0x0B0a0d31806e74A9544a8a767866dcDbAE1C1535", nftABI, signer);
-    }
-
+    // --- Wallet Functions ---
     async function connectWallet() {
-      if (!window.ethereum) {
-        alert("⚠️ Metamask tidak ditemukan. Install dulu!");
-        return;
-      }
-      try {
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-        signer = provider.getSigner();
-        const address = await signer.getAddress();
-        const shortAddr = address.slice(0, 6) + "..." + address.slice(-4);
-        connectBtn.textContent = shortAddr;
-        await initContracts();
-        console.log("✅ Wallet connected:", address);
-      } catch (err) {
-        console.error("❌ Connect gagal:", err);
-        alert("Connect wallet gagal. Cek console log.");
-      }
+      if (typeof window.ethereum !== "undefined") {
+        try {
+          provider = new ethers.providers.Web3Provider(window.ethereum);
+          await provider.send("eth_requestAccounts", []);
+          signer = provider.getSigner();
+          const address = await signer.getAddress();
+          walletMenuBtn.textContent = `${address.substring(0,6)}...${address.slice(-4)}`;
+          initContracts();
+          alert("✅ Wallet connected: " + address);
+        } catch (err) {
+          console.error(err);
+          alert("❌ Gagal connect wallet, cek konsol!");
+        }
+      } else alert("Metamask / TrustWallet tidak ditemukan!");
     }
 
-    connectBtn.addEventListener("click", connectWallet);
+    function disconnectWallet() {
+      provider = null;
+      signer = null;
+      token = null;
+      faucet = null;
+      staking = null;
+      nft = null;
+      walletMenuBtn.textContent = "🔗 Connect";
+    }
 
-    // Tombol aksi
+    function initContracts() {
+      token   = new ethers.Contract("0x303C2c8e2551A86F71Ef74C32C4e1110Da53F11B", tokenABI, signer);
+      faucet  = new ethers.Contract("0xBF121f3E9b8865C1a32EB0De7D77121D35c4E8a2", faucetABI, signer);
+      staking = new ethers.Contract("0x752D55A951eb4636c557D48a2664Bc1dD2C777AB", stakingABI, signer);
+      nft     = new ethers.Contract("0x0B0a0d31806e74A9544a8a767866dcDbAE1C1535", nftABI, signer);
+      console.log("✅ Contracts loaded");
+    }
+
+    connectWalletBtn.addEventListener("click", connectWallet);
+    disconnectBtn.addEventListener("click", disconnectWallet);
+
+    // --- Button Interactions ---
     document.getElementById("claimFaucetBtn").addEventListener("click", async () => {
-      try {
-        const tx = await faucet.claim();
-        await tx.wait();
-        alert("✅ Faucet berhasil!");
-      } catch (err) {
-        console.error(err);
-        alert("❌ Faucet gagal!");
-      }
+      if (!faucet) return alert("Wallet belum terhubung!");
+      try { const tx = await faucet.claim(); await tx.wait(); alert("✅ Faucet claimed!"); } 
+      catch(err){ console.error(err); alert("❌ Claim Faucet gagal, cek konsol!"); }
     });
 
     document.getElementById("stakeBtn").addEventListener("click", async () => {
+      if (!staking) return alert("Wallet belum terhubung!");
       try {
-        const amount = ethers.utils.parseUnits("100", 18); // contoh stake 100
+        const amount = ethers.utils.parseUnits("10", await token.decimals());
         await token.approve(staking.address, amount);
         const tx = await staking.stake(amount);
         await tx.wait();
-        alert("✅ Staking sukses!");
-      } catch (err) {
-        console.error(err);
-        alert("❌ Gagal staking!");
-      }
+        alert("✅ Staked 10 PWKC!");
+      } catch(err){ console.error(err); alert("❌ Stake gagal, cek konsol!"); }
     });
 
     document.getElementById("claimRewardsBtn").addEventListener("click", async () => {
-      try {
-        const tx = await staking.claimReward();
-        await tx.wait();
-        alert("🎁 Reward berhasil!");
-      } catch (err) {
-        console.error(err);
-        alert("❌ Reward gagal!");
-      }
+      if (!staking) return alert("Wallet belum terhubung!");
+      try { const tx = await staking.claimReward(); await tx.wait(); alert("✅ Rewards claimed!"); }
+      catch(err){ console.error(err); alert("❌ Claim Rewards gagal, cek konsol!"); }
     });
 
     document.getElementById("mintNFTBtn").addEventListener("click", async () => {
-      try {
-        const tx = await nft.mint();
-        await tx.wait();
-        alert("✨ NFT berhasil dibuat!");
-      } catch (err) {
-        console.error(err);
-        alert("❌ Mint gagal!");
-      }
+      if (!nft) return alert("Wallet belum terhubung!");
+      try { const fee = await nft.mintFee(); const tx = await nft.mint({ value: fee }); await tx.wait(); alert("🎨 NFT minted!"); }
+      catch(err){ console.error(err); alert("❌ Mint NFT gagal, cek konsol!"); }
     });
   </script>
 
