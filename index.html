@@ -92,6 +92,19 @@
       background: #f00;
       color: #fff;
     }
+    .disconnect-btn {
+      margin-top: 12px;
+      background: #222;
+      border: 1px solid #f00;
+      color: #f00;
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .disconnect-btn:hover {
+      background: #f00;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -114,60 +127,72 @@
 
   <div id="walletInfo" style="margin-top:20px; color:#fff;"></div>
 
-  <!-- Web3Modal v2 -->
-  <script type="module">
-    import { EthereumClient, w3mConnectors, w3mProvider } from "https://cdn.jsdelivr.net/npm/@web3modal/ethereum@2.7.1/dist/index.umd.js";
-    import { Web3Modal } from "https://cdn.jsdelivr.net/npm/@web3modal/html@2.7.1/dist/index.umd.js";
-    import { configureChains, createClient } from "https://cdn.jsdelivr.net/npm/@wagmi/core@1.3.6/dist/index.umd.js";
-
-    const chains = [{
-      id: 56,
-      name: "Binance Smart Chain",
-      network: "bsc",
-      nativeCurrency: { name: "BNB", symbol: "BNB", decimals: 18 },
-      rpcUrls: { default: { http: ["https://bsc-dataseed.binance.org/"] } },
-      blockExplorers: { default: { name: "BscScan", url: "https://bscscan.com" } }
-    }];
-
-    const projectId = "04d95c797b104ad69d34f7e2feccf794"; // Project ID kamu
-
-    const { provider } = configureChains(chains, [w3mProvider({ projectId })]);
-
-    const wagmiClient = createClient({
-      autoConnect: true,
-      connectors: w3mConnectors({ projectId, chains }),
-      provider
-    });
-
-    const ethereumClient = new EthereumClient(wagmiClient, chains);
-
-    // Buat instance global
-    window.myWeb3Modal = new Web3Modal(
-      { projectId, themeMode: "dark", themeVariables: { "--w3m-accent-color": "#0f0" } },
-      ethereumClient
-    );
-    window.web3ModalReady = true;
-
-    // Event listener untuk update info setelah connect via All Wallets
-    wagmiClient.subscribe(state => {
-      if(state.status === "connected" && state.data?.account){
-        document.getElementById("walletInfo").innerText = "✅ Connected: " + state.data.account;
-      }
-    });
-  </script>
+  <!-- Web3Modal Standalone -->
+  <script src="https://unpkg.com/@web3modal/standalone@2.7.1/dist/index.umd.js"></script>
 
   <script>
+    // Konfigurasi BSC
+    const BSC_CHAIN = {
+      chainId: '0x38', // 56 dalam hex
+      chainName: 'BNB Smart Chain',
+      nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+      rpcUrls: ['https://bsc-dataseed.binance.org/'],
+      blockExplorerUrls: ['https://bscscan.com/']
+    };
+
+    // State
+    let currentProvider = null;
+    let currentAccount = null;
+
     // Modal custom handler
     const modal = document.getElementById("walletModal");
     document.getElementById("openModal").onclick = ()=> modal.style.display="flex";
     function closeModal(){ modal.style.display="none"; }
 
+    // Helper: switch/add BSC
+    async function switchToBSC(provider){
+      if(!provider) return;
+      try {
+        await provider.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: BSC_CHAIN.chainId }]
+        });
+      } catch (err) {
+        if (err.code === 4902) {
+          await provider.request({
+            method: 'wallet_addEthereumChain',
+            params: [BSC_CHAIN]
+          });
+        }
+      }
+    }
+
+    function showWalletInfo(name, account){
+      currentAccount = account;
+      document.getElementById("walletInfo").innerHTML = `
+        ✅ Connected with <b>${name}</b>: ${account}
+        <br><button class="disconnect-btn" onclick="disconnectWallet()">Disconnect</button>
+      `;
+    }
+
+    // Disconnect
+    async function disconnectWallet(){
+      if(currentProvider && currentProvider.close){
+        await currentProvider.close();
+      }
+      currentProvider = null;
+      currentAccount = null;
+      document.getElementById("walletInfo").innerHTML = "❌ Wallet disconnected";
+    }
+
     // MetaMask connect
     async function connectMetaMask(){
       if(window.ethereum){
         try{
+          await switchToBSC(window.ethereum);
           const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-          document.getElementById("walletInfo").innerText = "✅ MetaMask: " + accounts[0];
+          currentProvider = window.ethereum;
+          showWalletInfo("MetaMask (BSC)", accounts[0]);
           closeModal();
         }catch(e){ console.error(e); }
       }else{
@@ -177,11 +202,15 @@
 
     // WalletConnect connect
     async function connectWalletConnect(){
-      const provider = new WalletConnectProvider.default({ infuraId: "04d95c797b104ad69d34f7e2feccf794" });
+      const provider = new WalletConnectProvider.default({
+        rpc: { 56: "https://bsc-dataseed.binance.org/" }
+      });
       await provider.enable();
+      await switchToBSC(provider);
       const web3 = new Web3(provider);
       const accounts = await web3.eth.getAccounts();
-      document.getElementById("walletInfo").innerText = "✅ WalletConnect: " + accounts[0];
+      currentProvider = provider;
+      showWalletInfo("WalletConnect (BSC)", accounts[0]);
       closeModal();
     }
 
@@ -190,13 +219,32 @@
       return connectWalletConnect();
     }
 
-    // All Wallets → buka Web3Modal v2
-    function openAllWallets(){
-      if(window.web3ModalReady && window.myWeb3Modal){
-        window.myWeb3Modal.openModal();
+    // === Web3Modal Standalone ===
+    const projectId = "04d95c797b104ad69d34f7e2feccf794";
+    const web3Modal = new window.Web3Modal.StandaloneWeb3Modal({
+      projectId,
+      themeMode: "dark",
+      themeVariables: { "--w3m-accent-color": "#0f0" },
+      defaultChain: {
+        chainId: 56,
+        name: "BNB Smart Chain",
+        rpcUrl: "https://bsc-dataseed.binance.org/"
+      }
+    });
+
+    // All Wallets
+    async function openAllWallets(){
+      try{
+        const provider = await web3Modal.connectWalletConnect();
+        await switchToBSC(provider);
+        const web3 = new Web3(provider);
+        const accounts = await web3.eth.getAccounts();
+        currentProvider = provider;
+        showWalletInfo("All Wallets (BSC)", accounts[0]);
         closeModal();
-      } else {
-        alert("⏳ Tunggu sebentar, Web3Modal masih loading...");
+      }catch(e){
+        console.error(e);
+        alert("❌ Gagal connect via All Wallets");
       }
     }
   </script>
