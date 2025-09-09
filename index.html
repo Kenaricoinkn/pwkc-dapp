@@ -66,6 +66,20 @@
       <button onclick="withdrawStake()">Withdraw Stake</button>
       <p id="stakeResult"></p>
     </div>
+    <div class="stake-box">
+  <h3>Stake</h3>
+  <input type="number" id="stakeAmount" placeholder="Enter amount KN">
+  <button onclick="stakeTokens()">Stake</button>
+  <button onclick="withdrawStake()">Withdraw</button>
+  <p>APY: <strong>12%</strong></p>
+  <p id="stakeResult"></p>
+
+  <!-- Animasi Staking -->
+  <div class="staking-progress" id="stakingProgress">
+    <div class="progress-bar" id="progressBar"></div>
+    <p id="progressText">No active staking</p>
+  </div>
+</div>
   </section>
 
   <!-- WALLET -->
