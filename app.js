@@ -38,7 +38,10 @@ function navigate(id) {
   document.getElementById(id).classList.add("active");
   document.querySelector(".nav-links").classList.remove("active"); // auto close menu
 
-  if (id === "wallet") loadWallet();
+  if (id === "wallet") {
+    loadWallet();
+    updateActiveStakingUI();
+  }
 }
 
 function updateAuthUI() {
@@ -94,6 +97,7 @@ function login() {
   updateAuthUI();
   navigate("home");
   loadWallet();
+  updateActiveStakingUI(); // fix
 }
 
 function logout() {
@@ -121,6 +125,7 @@ window.onload = () => {
     updateAuthUI();
     navigate("home");
     loadWallet();
+    updateActiveStakingUI(); // fix
   } else {
     updateAuthUI();
     navigate("login");
@@ -277,7 +282,7 @@ function withdrawStake() {
 // UI staking aktif + animasi
 function updateActiveStakingUI() {
   const activeStakingEl = document.getElementById("activeStaking");
-  if (!activeStakingEl) return;
+  if (!activeStakingEl || !currentWallet) return;
 
   let st = getStaked(currentWallet);
   if (st > 0) {
@@ -291,11 +296,6 @@ function updateActiveStakingUI() {
     activeStakingEl.innerText = "No active staking";
   }
 }
-
-// Saat halaman dimuat cek staking
-document.addEventListener("DOMContentLoaded", () => {
-  updateActiveStakingUI();
-});
 
 // ==========================
 // FAUCET (Persisted, 1x / 24h)
