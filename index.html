@@ -133,7 +133,7 @@
   <script>
     // Konfigurasi BSC
     const BSC_CHAIN = {
-      chainId: '0x38', // 56 dalam hex
+      chainId: '0x38',
       chainName: 'BNB Smart Chain',
       nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
       rpcUrls: ['https://bsc-dataseed.binance.org/'],
@@ -234,15 +234,23 @@
 
     // All Wallets
     async function openAllWallets(){
-      try{
-        const provider = await web3Modal.connectWalletConnect();
-        await switchToBSC(provider);
-        const web3 = new Web3(provider);
-        const accounts = await web3.eth.getAccounts();
-        currentProvider = provider;
-        showWalletInfo("All Wallets (BSC)", accounts[0]);
-        closeModal();
-      }catch(e){
+      try {
+        // buka modal Web3Modal
+        web3Modal.openModal();
+
+        // listen event connect
+        web3Modal.subscribeEvents((event) => {
+          if (event.name === "CONNECT_SUCCESS") {
+            const provider = event.data.provider;
+            currentProvider = provider;
+            const web3 = new Web3(provider);
+            web3.eth.getAccounts().then((accounts) => {
+              showWalletInfo("All Wallets (BSC)", accounts[0]);
+              closeModal();
+            });
+          }
+        });
+      } catch (e) {
         console.error(e);
         alert("❌ Gagal connect via All Wallets");
       }
