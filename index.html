@@ -23,15 +23,17 @@
 
   <!-- HOME -->
   <section id="home" class="page-section active">
-    <h1>Welcome to Kenari Coin</h1>
-    <p>Revolutionary community-driven cryptocurrency.</p>
+    <div class="home-container">
+      <img src="img/kn-logo.png" alt="Kenari Coin Logo" class="home-logo">
+      <h1>Welcome to Kenari Coin</h1>
+      <p>Revolutionary community-driven cryptocurrency.</p>
+    </div>
   </section>
 
   <!-- STAKING -->
   <section id="staking" class="page-section">
     <h2>Staking & Swap</h2>
     <div class="staking-container">
-      
       <!-- Swap -->
       <div class="swap-box">
         <h3>Swap</h3>
@@ -71,9 +73,7 @@
     <div class="wallet-box">
       <input type="text" id="walletInput" placeholder="Paste wallet address">
       <button onclick="loadWallet()">Check Wallet</button>
-      <div id="walletInfo" class="wallet-info">
-        <!-- Wallet info muncul disini -->
-      </div>
+      <div id="walletInfo" class="wallet-info"></div>
     </div>
   </section>
 
