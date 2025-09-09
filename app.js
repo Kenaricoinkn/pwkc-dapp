@@ -220,20 +220,20 @@ function swapTokens() {
 }
 
 // ==========================
-// STAKING (Fix pakai wallet & helper)
+// STAKING (Persisted)
 // ==========================
 function stakeTokens() {
   if (!currentWallet) return alert("⚠️ Please login first.");
-
   const amount = parseFloat(document.getElementById("stakeAmount").value);
+
   if (isNaN(amount) || amount <= 0) {
-    alert("Enter a valid amount to stake!");
+    alert("⚠️ Enter a valid amount to stake!");
     return;
   }
 
   let bal = getBalance(currentWallet);
   if (amount > bal.KN) {
-    alert("Not enough KN balance!");
+    alert("⚠️ Not enough KN balance!");
     return;
   }
 
@@ -241,47 +241,60 @@ function stakeTokens() {
   bal.KN -= amount;
   setBalance(currentWallet, bal);
 
-  // Simpan staking
-  setStaked(currentWallet, getStaked(currentWallet) + amount);
+  // Tambahkan staking
+  let st = getStaked(currentWallet);
+  setStaked(currentWallet, st + amount);
 
   // Update UI
-  document.getElementById("activeStaking").innerText = `Staked: ${getStaked(currentWallet)} KN`;
-  document.getElementById("stakeAmount").value = "";
+  updateActiveStakingUI();
   loadWallet();
+  document.getElementById("stakeAmount").value = "";
 }
 
 function withdrawStake() {
   if (!currentWallet) return alert("⚠️ Please login first.");
+  let st = getStaked(currentWallet);
 
-  let staked = getStaked(currentWallet);
-  if (staked <= 0) {
-    alert("No active staking to withdraw!");
+  if (st <= 0) {
+    alert("⚠️ No active staking to withdraw!");
     return;
   }
 
-  // Tambahkan balance
+  // Kembalikan ke balance
   let bal = getBalance(currentWallet);
-  bal.KN += staked;
+  bal.KN += st;
   setBalance(currentWallet, bal);
 
-  // Reset stake
+  // Reset staking
   setStaked(currentWallet, 0);
 
   // Update UI
-  document.getElementById("activeStaking").innerText = "No active staking";
-  alert(`Successfully withdrawn ${staked} KN`);
+  updateActiveStakingUI();
   loadWallet();
+  alert(`✅ Successfully withdrawn ${st} KN`);
 }
 
-// Saat load halaman, cek staking aktif
-document.addEventListener("DOMContentLoaded", () => {
-  if (!currentWallet) return;
-  let staked = getStaked(currentWallet);
-  if (staked > 0) {
-    document.getElementById("activeStaking").innerText = `Staked: ${staked} KN`;
+// UI staking aktif + animasi
+function updateActiveStakingUI() {
+  const activeStakingEl = document.getElementById("activeStaking");
+  if (!activeStakingEl) return;
+
+  let st = getStaked(currentWallet);
+  if (st > 0) {
+    activeStakingEl.innerHTML = `
+      <span class="glowText">🔥 Active Staking: ${st} KN 🔥</span>
+      <marquee behavior="scroll" direction="left" scrollamount="5">
+        🚀 Your ${st} KN is working hard in staking pool... 🚀
+      </marquee>
+    `;
   } else {
-    document.getElementById("activeStaking").innerText = "No active staking";
+    activeStakingEl.innerText = "No active staking";
   }
+}
+
+// Saat halaman dimuat cek staking
+document.addEventListener("DOMContentLoaded", () => {
+  updateActiveStakingUI();
 });
 
 // ==========================
