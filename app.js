@@ -2,22 +2,24 @@
 let balances = {};
 let staked = {};
 let faucetClaimed = {};
-let currentWallet = null; // dari Wallet page
+let currentWallet = null;
 
-// Navigasi
+// Toggle menu
 function toggleMenu() {
   document.querySelector(".nav-links").classList.toggle("active");
 }
 
+// Navigate + auto close
 function navigate(id) {
   document.querySelectorAll(".page-section").forEach(s => s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
+  document.querySelector(".nav-links").classList.remove("active"); // auto close menu
 }
 
 // --- Wallet ---
 function getBalance(addr) {
   if (!balances[addr]) {
-    balances[addr] = { KN: 1000, USDC: 500 }; // saldo awal dummy
+    balances[addr] = { KN: 1000, USDC: 500 };
   }
   return balances[addr];
 }
@@ -31,7 +33,7 @@ function loadWallet() {
     return;
   }
 
-  currentWallet = addr; // simpan address aktif
+  currentWallet = addr;
   const bal = getBalance(addr);
   walletInfo.innerHTML = `
     <p><strong>Address:</strong> ${addr}</p>
