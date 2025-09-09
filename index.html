@@ -11,13 +11,13 @@
   <header>
     <div class="logo">Kenari<span>Coin</span></div>
     <nav class="nav-links" id="navLinks">
-  <a href="#home">Home</a>
-  <a href="#staking">Staking</a>
-  <a href="#wallet">Wallet</a> <!-- Tambahan -->
-  <a href="#leaderboard">Leaderboard</a>
-  <a href="#about">About</a>
-  <a href="#contact">Contact</a>
-</nav>
+      <a href="#home">Home</a>
+      <a href="#staking">Staking</a>
+      <a href="#wallet">Wallet</a>
+      <a href="#leaderboard">Leaderboard</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
     <div class="hamburger" id="hamburger">&#9776;</div>
   </header>
 
@@ -35,18 +35,7 @@
       <div class="wallet-input">
         <input type="text" id="walletAddress" placeholder="Paste your wallet address">
       </div>
-      <!-- WALLET -->
-<section id="wallet" class="page-section">
-  <h2>Your Wallet</h2>
-  <div class="wallet-box">
-    <input type="text" id="walletInput" placeholder="Paste wallet address">
-    <button onclick="loadWallet()">Check Wallet</button>
-    <div id="walletInfo" class="wallet-info">
-      <!-- Saldo akan muncul di sini -->
-    </div>
-  </div>
-</section>
-
+      
       <div class="swap-box">
         <h3>Swap</h3>
         <select id="swapFrom">
@@ -71,6 +60,18 @@
         <h3>Faucet</h3>
         <button onclick="claimFaucet()">Claim 100 KN</button>
         <p id="faucetResult"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WALLET -->
+  <section id="wallet" class="page-section">
+    <h2>Your Wallet</h2>
+    <div class="wallet-box">
+      <input type="text" id="walletInput" placeholder="Paste wallet address">
+      <button onclick="loadWallet()">Check Wallet</button>
+      <div id="walletInfo" class="wallet-info">
+        <!-- Saldo akan muncul di sini -->
       </div>
     </div>
   </section>
