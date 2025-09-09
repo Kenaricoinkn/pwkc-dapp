@@ -1,16 +1,33 @@
 // ==========================
-// Kenari Coin Web App Logic
+// Kenari Coin Web App Logic (Persisted)
 // ==========================
 
-// Dummy storage
-let balances = {};
-let staked = {};
-let faucetClaimed = {};
+// State aktif (di memori untuk sesi berjalan)
 let currentWallet = null;
 let currentUser = null;
 
+// Kunci LocalStorage terpusat
+const LS_KEYS = {
+  USERS: "kenariUsers",        // [{username, walletAddr}]
+  ACTIVE: "activeUser",        // "0xabc..."
+  BALANCES: "kn_balances",     // {walletAddr: {KN, USDC}}
+  STAKED: "kn_staked",         // {walletAddr: number}
+  FAUCET: "kn_faucet"          // {walletAddr: timestamp}
+};
+
 // ==========================
-// NAVIGATION
+// Util LocalStorage (map helpers)
+// ==========================
+function getMap(key) {
+  try { return JSON.parse(localStorage.getItem(key)) || {}; }
+  catch (_) { return {}; }
+}
+function setMap(key, obj) {
+  localStorage.setItem(key, JSON.stringify(obj));
+}
+
+// ==========================
+// NAVIGATION & UI
 // ==========================
 function toggleMenu() {
   document.querySelector(".nav-links").classList.toggle("active");
@@ -21,20 +38,24 @@ function navigate(id) {
   document.getElementById(id).classList.add("active");
   document.querySelector(".nav-links").classList.remove("active"); // auto close menu
 
-  if (id === "wallet") {
-    loadWallet();
-  }
+  if (id === "wallet") loadWallet();
+}
+
+function updateAuthUI() {
+  const logoutLi = document.getElementById("logoutBtn");
+  if (!logoutLi) return;
+  logoutLi.style.display = currentWallet ? "block" : "none";
 }
 
 // ==========================
-// LOGIN SYSTEM (Max 2 Accounts)
+// LOGIN SYSTEM (Max 2 akun / device)
 // ==========================
 function getUsers() {
-  return JSON.parse(localStorage.getItem("kenariUsers")) || [];
+  try { return JSON.parse(localStorage.getItem(LS_KEYS.USERS)) || []; }
+  catch (_) { return []; }
 }
-
 function saveUsers(users) {
-  localStorage.setItem("kenariUsers", JSON.stringify(users));
+  localStorage.setItem(LS_KEYS.USERS, JSON.stringify(users));
 }
 
 function login() {
@@ -49,93 +70,120 @@ function login() {
 
   let users = getUsers();
 
-  // Max 2 accounts check
+  // Batas 2 akun per device
   if (users.length >= 2 && !users.find(u => u.walletAddr === walletAddr)) {
     resultEl.innerText = "⚠️ Maximum 2 accounts allowed per device. Please logout one account first.";
     return;
   }
 
-  // Check if wallet already exists → update username
-  let existing = users.find(u => u.walletAddr === walletAddr);
-  if (existing) {
-    existing.username = username;
-  } else {
-    users.push({ username, walletAddr });
-  }
+  // Update atau tambah user
+  const existing = users.find(u => u.walletAddr === walletAddr);
+  if (existing) existing.username = username;
+  else users.push({ username, walletAddr });
 
   saveUsers(users);
+  localStorage.setItem(LS_KEYS.ACTIVE, walletAddr);
 
   currentUser = username;
   currentWallet = walletAddr;
 
-  localStorage.setItem("activeUser", walletAddr);
+  // Seed saldo kalau belum ada
+  getBalance(walletAddr);
 
   resultEl.innerText = "✅ Login successful!";
+  updateAuthUI();
   navigate("home");
   loadWallet();
 }
 
-// Auto login
+function logout() {
+  // Hapus user aktif dari daftar (logout = remove akun aktif dari device)
+  let users = getUsers().filter(u => u.walletAddr !== currentWallet);
+  saveUsers(users);
+
+  localStorage.removeItem(LS_KEYS.ACTIVE);
+  currentUser = null;
+  currentWallet = null;
+
+  updateAuthUI();
+  navigate("login");
+}
+
+// Auto login saat load
 window.onload = () => {
   const users = getUsers();
-  const activeWallet = localStorage.getItem("activeUser");
+  const activeWallet = localStorage.getItem(LS_KEYS.ACTIVE);
 
   if (activeWallet && users.length > 0) {
-    let active = users.find(u => u.walletAddr === activeWallet) || users[0];
+    const active = users.find(u => u.walletAddr === activeWallet) || users[0];
     currentUser = active.username;
     currentWallet = active.walletAddr;
+    updateAuthUI();
     navigate("home");
     loadWallet();
   } else {
+    updateAuthUI();
     navigate("login");
   }
 };
 
-// Logout
-function logout() {
-  let users = getUsers().filter(u => u.walletAddr !== currentWallet);
-  saveUsers(users);
-
-  currentUser = null;
-  currentWallet = null;
-  localStorage.removeItem("activeUser");
-
-  navigate("login");
-}
-
 // ==========================
-// WALLET BALANCE
+// BALANCE (Persisted)
 // ==========================
 function getBalance(addr) {
-  if (!balances[addr]) {
-    balances[addr] = { KN: 1000, USDC: 500 }; // dummy initial balance
+  const map = getMap(LS_KEYS.BALANCES);
+  if (!map[addr]) {
+    map[addr] = { KN: 1000, USDC: 500 }; // seed awal sekali saja
+    setMap(LS_KEYS.BALANCES, map);
   }
-  return balances[addr];
+  return { ...map[addr] }; // return copy supaya wajib set ulang saat ubah
+}
+function setBalance(addr, newBal) {
+  const map = getMap(LS_KEYS.BALANCES);
+  map[addr] = { KN: Number(newBal.KN) || 0, USDC: Number(newBal.USDC) || 0 };
+  setMap(LS_KEYS.BALANCES, map);
+}
+
+function getStaked(addr) {
+  const map = getMap(LS_KEYS.STAKED);
+  return Number(map[addr] || 0);
+}
+function setStaked(addr, amount) {
+  const map = getMap(LS_KEYS.STAKED);
+  map[addr] = Number(amount) || 0;
+  setMap(LS_KEYS.STAKED, map);
+}
+
+function getFaucetTime(addr) {
+  const map = getMap(LS_KEYS.FAUCET);
+  return Number(map[addr] || 0);
+}
+function setFaucetTime(addr, ts) {
+  const map = getMap(LS_KEYS.FAUCET);
+  map[addr] = Number(ts) || 0;
+  setMap(LS_KEYS.FAUCET, map);
 }
 
 function loadWallet() {
   if (!currentWallet) return;
-
   const walletInfo = document.getElementById("walletInfo");
   const bal = getBalance(currentWallet);
+  const st = getStaked(currentWallet);
 
   walletInfo.innerHTML = `
     <p><strong>User:</strong> ${currentUser}</p>
     <p><strong>Address:</strong> ${currentWallet}</p>
     <p><strong>Balance KN:</strong> ${bal.KN} KN</p>
     <p><strong>Balance USDC:</strong> ${bal.USDC} USDC</p>
-    <p><strong>Staked:</strong> ${staked[currentWallet] || 0} KN</p>
+    <p><strong>Staked:</strong> ${st} KN</p>
   `;
 }
 
 // ==========================
-// SWAP (Dummy)
+// SWAP (Dummy, persisted)
 // ==========================
 function swapTokens() {
-  if (!currentWallet) {
-    alert("⚠️ Please login first.");
-    return;
-  }
+  if (!currentWallet) return alert("⚠️ Please login first.");
 
   const from = document.getElementById("swapFrom").value;
   const amount = parseFloat(document.getElementById("swapAmount").value);
@@ -154,7 +202,8 @@ function swapTokens() {
       return;
     }
     bal.USDC -= amount;
-    bal.KN += amount * 10; // dummy rate
+    bal.KN += amount * 10; // rate dummy
+    setBalance(currentWallet, bal);
     resultEl.innerText = `✅ Swapped ${amount} USDC → ${amount * 10} KN`;
   } else {
     if (bal.KN < amount) {
@@ -162,86 +211,87 @@ function swapTokens() {
       return;
     }
     bal.KN -= amount;
-    bal.USDC += amount / 10; // dummy rate
-    resultEl.innerText = `✅ Swapped ${amount} KN → ${amount / 10} USDC`;
+    bal.USDC += amount / 10; // rate dummy
+    setBalance(currentWallet, bal);
+    resultEl.innerText = `✅ Swapped ${amount} KN → ${(amount / 10).toFixed(2)} USDC`;
   }
 
   loadWallet();
 }
 
 // ==========================
-// STAKING (Dummy)
+// STAKING (Dummy, persisted)
 // ==========================
 function stakeTokens() {
-  if (!currentWallet) {
-    alert("⚠️ Please login first.");
-    return;
-  }
+  if (!currentWallet) return alert("⚠️ Please login first.");
 
   const amount = parseFloat(document.getElementById("stakeAmount").value);
   const resultEl = document.getElementById("stakeResult");
-  const bal = getBalance(currentWallet);
 
   if (!amount || amount <= 0) {
     resultEl.innerText = "⚠️ Enter valid amount.";
     return;
   }
 
+  const bal = getBalance(currentWallet);
   if (bal.KN < amount) {
     resultEl.innerText = "⚠️ Not enough KN.";
     return;
   }
 
   bal.KN -= amount;
-  staked[currentWallet] = (staked[currentWallet] || 0) + amount;
+  setBalance(currentWallet, bal);
+
+  const newStaked = getStaked(currentWallet) + amount;
+  setStaked(currentWallet, newStaked);
 
   resultEl.innerText = `✅ Staked ${amount} KN successfully!`;
   loadWallet();
 }
 
 function withdrawStake() {
-  if (!currentWallet) {
-    alert("⚠️ Please login first.");
-    return;
-  }
+  if (!currentWallet) return alert("⚠️ Please login first.");
 
   const resultEl = document.getElementById("stakeResult");
-  const stakedAmt = staked[currentWallet] || 0;
-  const bal = getBalance(currentWallet);
+  const stAmt = getStaked(currentWallet);
 
-  if (stakedAmt <= 0) {
+  if (stAmt <= 0) {
     resultEl.innerText = "⚠️ No staked balance.";
     return;
   }
 
-  bal.KN += stakedAmt;
-  staked[currentWallet] = 0;
+  const bal = getBalance(currentWallet);
+  bal.KN += stAmt;
+  setBalance(currentWallet, bal);
 
-  resultEl.innerText = `✅ Withdrawn ${stakedAmt} KN from staking.`;
+  setStaked(currentWallet, 0);
+
+  resultEl.innerText = `✅ Withdrawn ${stAmt} KN from staking.`;
   loadWallet();
 }
 
 // ==========================
-// FAUCET (Dummy, 1x per 24h)
+// FAUCET (Persisted, 1x / 24h)
 // ==========================
 function claimFaucet() {
-  if (!currentWallet) {
-    alert("⚠️ Please login first.");
-    return;
-  }
+  if (!currentWallet) return alert("⚠️ Please login first.");
 
   const now = Date.now();
   const resultEl = document.getElementById("faucetResult");
+  const last = getFaucetTime(currentWallet);
 
-  if (faucetClaimed[currentWallet] && now - faucetClaimed[currentWallet] < 24 * 60 * 60 * 1000) {
-    resultEl.innerText = "⚠️ Faucet already claimed. Try again in 24 hours.";
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  if (last && now - last < DAY_MS) {
+    const sisa = Math.ceil((DAY_MS - (now - last)) / (60 * 1000)); // sisa menit
+    resultEl.innerText = `⚠️ Faucet already claimed. Try again in ~${sisa} minutes.`;
     return;
   }
 
   const bal = getBalance(currentWallet);
   bal.KN += 100;
+  setBalance(currentWallet, bal);
 
-  faucetClaimed[currentWallet] = now;
+  setFaucetTime(currentWallet, now);
   resultEl.innerText = "✅ You claimed 100 KN from faucet!";
   loadWallet();
 }
