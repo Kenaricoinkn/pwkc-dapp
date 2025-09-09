@@ -1,112 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kenari Coin</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kenari Coin (KN)</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- Navbar -->
+  <!-- NAVBAR -->
   <nav class="navbar">
     <div class="logo">
-      <img src="img/Logo.png" alt="Kenari Logo" class="logo-anim">
-      <span>Kenari Coin</span>
+      <img src="img/Logo.png" alt="KenariCoin Logo"/>
+      <span>KenariCoin</span>
     </div>
-    <div class="menu-toggle" id="menuToggle">☰</div>
-    <ul class="nav-links" id="navLinks">
-      <li><a href="#" onclick="navigate('home')">HOME</a></li>
-      <li><a href="#" onclick="navigate('staking')">STAKING</a></li>
-      <li><a href="#" onclick="navigate('wallet')">WALLET</a></li>
-      <li><a href="#" onclick="navigate('leaderboard')">LEADERBOARD</a></li>
-      <li><a href="#" onclick="navigate('about')">ABOUT</a></li>
-      <li><a href="#" onclick="navigate('contact')">CONTACT</a></li>
-      <li><a href="#" onclick="navigate('login')">LOGIN</a></li>
+    <div class="hamburger" onclick="toggleMenu()">☰</div>
+    <ul class="nav-links">
+      <li><a href="#" onclick="navigate('home')">Home</a></li>
+      <li><a href="#" onclick="navigate('staking')">Staking</a></li>
+      <li><a href="#" onclick="navigate('wallet')">Wallet</a></li>
+      <li><a href="#" onclick="navigate('faucet')">Faucet</a></li>
+      <li><a href="#" onclick="navigate('leaderboard')">Leaderboard</a></li>
+      <li><a href="#" onclick="navigate('about')">About</a></li>
+      <li><a href="#" onclick="navigate('contact')">Contact</a></li>
+      <li id="logoutBtn" style="display:none;">
+        <a href="#" onclick="logout()">Logout</a>
+      </li>
     </ul>
   </nav>
 
-  <!-- HOME -->
-  <section id="home" class="page-section active">
-    <h1>Welcome to Kenari Coin</h1>
-    <p>The future of community-driven cryptocurrency.</p>
+  <!-- LOGIN -->
+  <section id="login" class="page-section active">
+    <h2>Login</h2>
+    <div class="form-box">
+      <input type="text" id="usernameInput" placeholder="Enter username"/>
+      <input type="text" id="walletAddrInput" placeholder="Enter wallet address"/>
+      <button onclick="login()">Login</button>
+      <p id="loginResult"></p>
+    </div>
   </section>
 
-  <!-- LOGIN -->
-  <section id="login" class="page-section">
-    <h2>Login</h2>
-    <input type="text" id="usernameInput" placeholder="Enter username">
-    <input type="text" id="walletAddrInput" placeholder="Enter wallet address">
-    <button onclick="login()">Login</button>
-    <p id="loginResult"></p>
+  <!-- HOME -->
+  <section id="home" class="page-section">
+    <h1>Welcome to Kenari Coin</h1>
+    <img src="img/Logo.png" alt="Kenari Logo" class="home-logo"/>
+    <p>The future of digital assets with KN Token.</p>
   </section>
 
   <!-- STAKING -->
   <section id="staking" class="page-section">
     <h2>Staking & Swap</h2>
     <div class="staking-container">
-      <div class="swap-box">
-        <h3>Swap</h3>
-        <select id="swapFrom">
-          <option value="USDC">USDC</option>
-          <option value="KN">KN</option>
-        </select>
-        <input type="number" id="swapAmount" placeholder="Amount">
-        <button onclick="swapTokens()">Swap</button>
-        <p id="swapResult"></p>
-      </div>
+      <h3>Swap</h3>
+      <select id="swapFrom">
+        <option value="USDC">USDC → KN</option>
+        <option value="KN">KN → USDC</option>
+      </select>
+      <input type="number" id="swapAmount" placeholder="Amount"/>
+      <button onclick="swapTokens()">Swap</button>
+      <p id="swapResult"></p>
 
-      <div class="stake-box">
-        <h3>Stake</h3>
-        <input type="number" id="stakeAmount" placeholder="Enter amount KN">
-        <button onclick="stakeTokens()">Stake</button>
-        <button onclick="withdrawStake()">Withdraw</button>
-        <p>APY: <strong>12%</strong></p>
-        <p id="stakeResult"></p>
-
-        <!-- Animasi Staking -->
-        <div class="staking-progress" id="stakingProgress">
-          <div class="progress-bar" id="progressBar"></div>
-          <p id="progressText">No active staking</p>
-        </div>
-      </div>
-
-      <div class="faucet-box">
-        <h3>Faucet</h3>
-        <button onclick="claimFaucet()">Claim 100 KN</button>
-        <p id="faucetResult"></p>
-      </div>
+      <h3>Staking</h3>
+      <input type="number" id="stakeAmount" placeholder="KN Amount"/>
+      <button onclick="stakeTokens()">Stake</button>
+      <button onclick="withdrawStake()">Withdraw Stake</button>
+      <p id="stakeResult"></p>
     </div>
   </section>
 
   <!-- WALLET -->
   <section id="wallet" class="page-section">
     <h2>Your Wallet</h2>
-    <div class="wallet-box">
-      <div id="walletInfo">Login first to view your wallet.</div>
-    </div>
+    <div id="walletInfo" class="wallet-info"></div>
+  </section>
+
+  <!-- FAUCET -->
+  <section id="faucet" class="page-section">
+    <h2>Faucet</h2>
+    <p>Claim 100 KN every 24 hours</p>
+    <button onclick="claimFaucet()">Claim Faucet</button>
+    <p id="faucetResult"></p>
   </section>
 
   <!-- LEADERBOARD -->
   <section id="leaderboard" class="page-section">
     <h2>Leaderboard</h2>
-    <ul id="leaderboardList">
-      <li>Top Staker #1 - 5000 KN</li>
-      <li>Top Staker #2 - 3200 KN</li>
-      <li>Top Staker #3 - 2100 KN</li>
-    </ul>
+    <p>Coming soon...</p>
   </section>
 
   <!-- ABOUT -->
   <section id="about" class="page-section">
-    <h2>About Kenari Coin</h2>
-    <p>Kenari Coin (KN) is a decentralized digital asset with total supply of 500 Trillion KN (decimals: 6). Built for scalability and community-driven growth.</p>
+    <h2>About</h2>
+    <p>Kenari Coin (KN) is a community-driven token with modern features like swap, staking, and faucet system.</p>
   </section>
 
   <!-- CONTACT -->
   <section id="contact" class="page-section">
     <h2>Contact</h2>
     <p>Email: support@kenaricoin.com</p>
-    <p>Twitter: @KenariCoin</p>
   </section>
 
   <script src="app.js"></script>
