@@ -157,3 +157,42 @@ h1, h2, h3 {
   letter-spacing: 1px;
   margin-bottom: 15px;
 }
+/* Animasi Progress Staking */
+.staking-progress {
+  margin-top: 15px;
+  background: rgba(30,30,30,0.9);
+  border: 1px solid #444;
+  border-radius: 12px;
+  padding: 15px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(255,215,0,0.3);
+}
+
+.progress-bar {
+  height: 12px;
+  background: linear-gradient(90deg, #ffd700, #ff6600, #ffd700);
+  background-size: 200% 100%;
+  animation: progressAnim 2s linear infinite;
+  width: 0%;
+  border-radius: 8px;
+  transition: width 1s ease-in-out;
+}
+
+@keyframes progressAnim {
+  0% { background-position: 0% 0; }
+  100% { background-position: 200% 0; }
+}
+
+#progressText {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #ffd700;
+  font-weight: bold;
+  animation: glowText 1.5s ease-in-out infinite;
+}
+
+@keyframes glowText {
+  0%, 100% { text-shadow: 0 0 8px #ffd700; }
+  50% { text-shadow: 0 0 16px #ff9900; }
+}
