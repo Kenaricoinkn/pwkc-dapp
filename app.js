@@ -353,7 +353,12 @@ function saveLeaderboard(list) {
   localStorage.setItem(LS_KEYS.LEADERBOARD, JSON.stringify(list));
 }
 
-function loadLeaderboard() {
+function shortenAddr(addr) {
+  if (!addr) return "";
+  return addr.substring(0, 6) + "..." + addr.slice(-4);
+}
+
+function loadLeaderboard(showAll = false) {
   let dummy = seedDummyLeaderboard(50);
   let users = getUsers();
 
@@ -373,17 +378,46 @@ function loadLeaderboard() {
 
   let html =
     "<table><tr><th>Rank</th><th>User</th><th>Wallet</th><th>Staked KN</th></tr>";
-  all.forEach((u, i) => {
+
+  let displayData = showAll ? all : all.slice(0, 15);
+
+  displayData.forEach((u, i) => {
     const highlight =
       currentWallet && u.walletAddr === currentWallet ? " style='background:#222;color:#0f0;'" : "";
     html += `<tr${highlight}>
       <td>#${i + 1}</td>
       <td>${u.username}</td>
-      <td>${u.walletAddr}</td>
+      <td>${shortenAddr(u.walletAddr)}</td>
       <td>${u.staked}</td>
     </tr>`;
   });
   html += "</table>";
 
+  // Tambah tombol Show More / Show Less
+  if (!showAll && all.length > 15) {
+    html += `<div style="text-align:center; margin-top:10px;">
+               <button id="showMoreBtn" style="padding:8px 16px; background:#FFD700; color:#000; border:none; border-radius:6px; cursor:pointer;">
+                 Show More
+               </button>
+             </div>`;
+  } else if (showAll && all.length > 15) {
+    html += `<div style="text-align:center; margin-top:10px;">
+               <button id="showLessBtn" style="padding:8px 16px; background:#FFD700; color:#000; border:none; border-radius:6px; cursor:pointer;">
+                 Show Less
+               </button>
+             </div>`;
+  }
+
   leaderboardEl.innerHTML = html;
+
+  // Event tombol
+  if (!showAll && all.length > 15) {
+    document.getElementById("showMoreBtn").addEventListener("click", () =>
+      loadLeaderboard(true)
+    );
+  } else if (showAll && all.length > 15) {
+    document.getElementById("showLessBtn").addEventListener("click", () =>
+      loadLeaderboard(false)
+    );
+  }
 }
