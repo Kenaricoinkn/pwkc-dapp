@@ -3,77 +3,87 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KenariCoin Wallet Connect</title>
-  <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
-  <style>
-    body { background: #0b0f19; color: #fff; font-family: Arial, sans-serif; text-align: center; padding: 40px; }
-    .btn { background: #00ff99; color: #000; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; border: none; }
-    .btn:hover { background: #00cc77; }
-    #walletInfo { margin-top: 20px; padding: 15px; background: #111827; border-radius: 10px; display: none; }
-  </style>
+  <title>Kenari Coin (KN)</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>🚀 KenariCoin Wallet Connect</h1>
+  <!-- Navbar -->
+  <header>
+    <div class="logo">Kenari<span>Coin</span></div>
+    <nav class="nav-links" id="navLinks">
+      <a href="#home">Home</a>
+      <a href="#staking">Staking</a>
+      <a href="#leaderboard">Leaderboard</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="hamburger" id="hamburger">&#9776;</div>
+  </header>
 
-  <button class="btn" onclick="openAllWallets()">🔗 Connect All Wallets</button>
-  <div id="walletInfo"></div>
+  <!-- HOME -->
+  <section id="home" class="page-section active">
+    <h1>Welcome to Kenari Coin</h1>
+    <p>KN is a modern digital asset with fast, secure, and scalable transactions.</p>
+    <div class="hero-animation"></div>
+  </section>
 
-  <script type="module">
-    import { Web3Modal } from "https://cdn.jsdelivr.net/npm/@web3modal/html@2.7.1/dist/index.umd.js"
-    import { EthereumClient, w3mConnectors, w3mProvider } from "https://cdn.jsdelivr.net/npm/@web3modal/ethereum@2.7.1/dist/index.umd.js"
-    import { configureChains, createConfig, getAccount, watchAccount } from "https://cdn.jsdelivr.net/npm/@wagmi/core@1.3.6/dist/index.umd.js"
+  <!-- STAKING -->
+  <section id="staking" class="page-section">
+    <h2>Staking & Swap</h2>
+    <div class="staking-container">
+      <div class="wallet-input">
+        <input type="text" id="walletAddress" placeholder="Paste your wallet address">
+      </div>
 
-    // === BSC Chain Config ===
-    const bsc = {
-      id: 56,
-      name: "BNB Smart Chain",
-      network: "bsc",
-      nativeCurrency: { name: "BNB", symbol: "BNB", decimals: 18 },
-      rpcUrls: { default: { http: ["https://bsc-dataseed.binance.org/"] } },
-      blockExplorers: { default: { name: "BscScan", url: "https://bscscan.com" } }
-    }
+      <div class="swap-box">
+        <h3>Swap</h3>
+        <select id="swapFrom">
+          <option value="USDC">USDC</option>
+          <option value="KN">KN</option>
+        </select>
+        <input type="number" id="swapAmount" placeholder="Amount">
+        <button onclick="swapTokens()">Swap</button>
+        <p id="swapResult"></p>
+      </div>
 
-    const projectId = "04d95c797b104ad69d34f7e2feccf794"
+      <div class="stake-box">
+        <h3>Stake</h3>
+        <input type="number" id="stakeAmount" placeholder="Enter amount KN">
+        <button onclick="stakeTokens()">Stake</button>
+        <button onclick="withdrawStake()">Withdraw</button>
+        <p>APY: <strong>12%</strong></p>
+        <p id="stakeResult"></p>
+      </div>
 
-    // Wagmi setup
-    const { publicClient } = configureChains([bsc], [w3mProvider({ projectId })])
+      <div class="faucet-box">
+        <h3>Faucet</h3>
+        <button onclick="claimFaucet()">Claim 100 KN</button>
+        <p id="faucetResult"></p>
+      </div>
+    </div>
+  </section>
 
-    const wagmiConfig = createConfig({
-      autoConnect: true,
-      connectors: w3mConnectors({ projectId, chains: [bsc] }),
-      publicClient
-    })
+  <!-- LEADERBOARD -->
+  <section id="leaderboard" class="page-section">
+    <h2>Leaderboard</h2>
+    <ul id="leaderboardList">
+      <!-- Data leaderboard dummy -->
+    </ul>
+  </section>
 
-    const ethereumClient = new EthereumClient(wagmiConfig, [bsc])
+  <!-- ABOUT -->
+  <section id="about" class="page-section">
+    <h2>About Kenari Coin</h2>
+    <p>Kenari Coin (KN) is a decentralized digital asset with total supply of 500 Trillion KN (decimals: 6). Built for scalability and community-driven growth.</p>
+  </section>
 
-    // Web3Modal resmi
-    window.web3Modal = new Web3Modal(
-      {
-        projectId,
-        themeMode: "dark",
-        themeVariables: {
-          "--w3m-accent-color": "#00ff99",
-          "--w3m-background-color": "#1a1f2e"
-        }
-      },
-      ethereumClient
-    )
+  <!-- CONTACT -->
+  <section id="contact" class="page-section">
+    <h2>Contact</h2>
+    <p>Email: support@kenaricoin.com</p>
+    <p>Twitter: @KenariCoin</p>
+  </section>
 
-    // Fungsi tombol
-    window.openAllWallets = async function () {
-      window.web3Modal.openModal()
-    }
-
-    // Update info kalau wallet connect
-    watchAccount(wagmiConfig, {
-      onChange(account) {
-        if (account?.address) {
-          document.getElementById("walletInfo").style.display = "block"
-          document.getElementById("walletInfo").innerHTML =
-            `✅ Connected: <b>${account.address}</b> (BSC)`
-        }
-      }
-    })
-  </script>
+  <script src="app.js"></script>
 </body>
 </html>
