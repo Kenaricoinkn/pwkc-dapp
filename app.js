@@ -3,6 +3,7 @@ let balances = {};
 let staked = {};
 let faucetClaimed = {};
 let currentWallet = null;
+let currentUser = null;
 
 // Toggle menu
 function toggleMenu() {
@@ -13,10 +14,56 @@ function toggleMenu() {
 function navigate(id) {
   document.querySelectorAll(".page-section").forEach(s => s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
-  document.querySelector(".nav-links").classList.remove("active"); // auto close menu
+  document.querySelector(".nav-links").classList.remove("active");
+
+  if (id === "wallet") {
+    loadWallet();
+  }
 }
 
-// --- Wallet ---
+// --- LOGIN SYSTEM ---
+function login() {
+  const username = document.getElementById("usernameInput").value.trim();
+  const walletAddr = document.getElementById("walletAddrInput").value.trim();
+  const resultEl = document.getElementById("loginResult");
+
+  if (!username || !walletAddr) {
+    resultEl.innerText = "Please enter username and wallet address.";
+    return;
+  }
+
+  currentUser = username;
+  currentWallet = walletAddr;
+
+  localStorage.setItem("kenariUser", JSON.stringify({ username, walletAddr }));
+
+  resultEl.innerText = "Login successful!";
+  navigate("home");
+  loadWallet();
+}
+
+function logout() {
+  localStorage.removeItem("kenariUser");
+  currentUser = null;
+  currentWallet = null;
+  navigate("login");
+}
+
+// Auto login if data exists
+window.onload = () => {
+  const saved = localStorage.getItem("kenariUser");
+  if (saved) {
+    const { username, walletAddr } = JSON.parse(saved);
+    currentUser = username;
+    currentWallet = walletAddr;
+    navigate("home");
+    loadWallet();
+  } else {
+    navigate("login");
+  }
+};
+
+// --- WALLET BALANCE ---
 function getBalance(addr) {
   if (!balances[addr]) {
     balances[addr] = { KN: 1000, USDC: 500 };
@@ -25,21 +72,17 @@ function getBalance(addr) {
 }
 
 function loadWallet() {
-  const addr = document.getElementById("walletInput").value.trim();
+  if (!currentWallet) return;
+
   const walletInfo = document.getElementById("walletInfo");
+  const bal = getBalance(currentWallet);
 
-  if (!addr) {
-    walletInfo.innerHTML = "<p style='color:red'>Please paste wallet address.</p>";
-    return;
-  }
-
-  currentWallet = addr;
-  const bal = getBalance(addr);
   walletInfo.innerHTML = `
-    <p><strong>Address:</strong> ${addr}</p>
+    <p><strong>User:</strong> ${currentUser}</p>
+    <p><strong>Address:</strong> ${currentWallet}</p>
     <p><strong>Balance KN:</strong> ${bal.KN} KN</p>
     <p><strong>Balance USDC:</strong> ${bal.USDC} USDC</p>
-    <p><strong>Staked:</strong> ${staked[addr] || 0} KN</p>
+    <p><strong>Staked:</strong> ${staked[currentWallet] || 0} KN</p>
   `;
 }
 
@@ -47,7 +90,7 @@ function loadWallet() {
 function swapTokens() {
   const resultEl = document.getElementById("swapResult");
   if (!currentWallet) {
-    resultEl.innerText = "Please set your wallet address in Wallet page first.";
+    resultEl.innerText = "Please login first.";
     return;
   }
 
@@ -84,7 +127,7 @@ function swapTokens() {
 function stakeTokens() {
   const resultEl = document.getElementById("stakeResult");
   if (!currentWallet) {
-    resultEl.innerText = "Please set your wallet address in Wallet page first.";
+    resultEl.innerText = "Please login first.";
     return;
   }
 
