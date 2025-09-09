@@ -223,51 +223,49 @@ function swapTokens() {
 // STAKING (Dummy, persisted)
 // ==========================
 function stakeTokens() {
-  if (!currentWallet) return alert("⚠️ Please login first.");
-
   const amount = parseFloat(document.getElementById("stakeAmount").value);
-  const resultEl = document.getElementById("stakeResult");
-
-  if (!amount || amount <= 0) {
-    resultEl.innerText = "⚠️ Enter valid amount.";
+  if (isNaN(amount) || amount <= 0) {
+    document.getElementById("stakeResult").innerText = "Enter a valid amount.";
     return;
   }
 
-  const bal = getBalance(currentWallet);
-  if (bal.KN < amount) {
-    resultEl.innerText = "⚠️ Not enough KN.";
+  // Simpan staking user
+  let balance = localStorage.getItem("balance") ? parseFloat(localStorage.getItem("balance")) : 1000;
+  if (amount > balance) {
+    document.getElementById("stakeResult").innerText = "Not enough balance.";
     return;
   }
 
-  bal.KN -= amount;
-  setBalance(currentWallet, bal);
+  balance -= amount;
+  localStorage.setItem("balance", balance);
 
-  const newStaked = getStaked(currentWallet) + amount;
-  setStaked(currentWallet, newStaked);
+  // Update result
+  document.getElementById("stakeResult").innerText = `✅ You staked ${amount} KN.`;
+  updateWalletUI();
 
-  resultEl.innerText = `✅ Staked ${amount} KN successfully!`;
-  loadWallet();
+  // Animasi staking progress
+  const progressBar = document.getElementById("progressBar");
+  const progressText = document.getElementById("progressText");
+
+  let width = 0;
+  progressBar.style.width = "0%";
+  progressText.innerText = "Staking in progress...";
+
+  let interval = setInterval(() => {
+    if (width >= 100) {
+      clearInterval(interval);
+      progressText.innerText = `🔥 Staked ${amount} KN successfully!`;
+    } else {
+      width += 2;
+      progressBar.style.width = width + "%";
+    }
+  }, 200);
 }
 
 function withdrawStake() {
-  if (!currentWallet) return alert("⚠️ Please login first.");
-
-  const resultEl = document.getElementById("stakeResult");
-  const stAmt = getStaked(currentWallet);
-
-  if (stAmt <= 0) {
-    resultEl.innerText = "⚠️ No staked balance.";
-    return;
-  }
-
-  const bal = getBalance(currentWallet);
-  bal.KN += stAmt;
-  setBalance(currentWallet, bal);
-
-  setStaked(currentWallet, 0);
-
-  resultEl.innerText = `✅ Withdrawn ${stAmt} KN from staking.`;
-  loadWallet();
+  document.getElementById("progressBar").style.width = "0%";
+  document.getElementById("progressText").innerText = "No active staking";
+  document.getElementById("stakeResult").innerText = "❌ Staking withdrawn.";
 }
 
 // ==========================
