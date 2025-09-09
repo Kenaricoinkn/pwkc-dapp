@@ -48,39 +48,37 @@
   </section>
 
   <!-- STAKING -->
-  <section id="staking" class="page-section">
-    <h2>Staking & Swap</h2>
-    <div class="staking-container">
+  <!-- STAKING -->
+<section id="staking" class="page-section">
+  <h2>Staking & Swap</h2>
+  <div class="staking-container">
+    
+    <!-- Swap -->
+    <div class="swap-box">
       <h3>Swap</h3>
       <select id="swapFrom">
-        <option value="USDC">USDC → KN</option>
-        <option value="KN">KN → USDC</option>
+        <option value="USDC">USDC</option>
+        <option value="KN">KN</option>
       </select>
-      <input type="number" id="swapAmount" placeholder="Amount"/>
+      <input type="number" id="swapAmount" placeholder="Amount">
       <button onclick="swapTokens()">Swap</button>
       <p id="swapResult"></p>
-
-      <h3>Staking</h3>
-      <input type="number" id="stakeAmount" placeholder="KN Amount"/>
-      <button onclick="stakeTokens()">Stake</button>
-      <button onclick="withdrawStake()">Withdraw Stake</button>
-      <p id="stakeResult"></p>
     </div>
-    <div class="stake-box">
-  <h3>Stake</h3>
-  <input type="number" id="stakeAmount" placeholder="Enter amount KN">
-  <button onclick="stakeTokens()">Stake</button>
-  <button onclick="withdrawStake()">Withdraw</button>
-  <p>APY: <strong>12%</strong></p>
-  <p id="stakeResult"></p>
 
-  <!-- Animasi Staking -->
-  <div class="staking-progress" id="stakingProgress">
-    <div class="progress-bar" id="progressBar"></div>
-    <p id="progressText">No active staking</p>
-  </div>
-</div>
-  </section>
+    <!-- Staking -->
+    <div class="stake-box">
+      <h3>Staking</h3>
+      <input type="number" id="stakeAmount" placeholder="Enter amount KN">
+      <div class="stake-actions">
+        <button onclick="stakeTokens()">Stake</button>
+        <button onclick="withdrawStake()">Withdraw</button>
+      </div>
+      <p>APY: <strong>12%</strong></p>
+      <div id="activeStaking" class="active-staking">
+        No active staking
+      </div>
+    </div>
+</section>
 
   <!-- WALLET -->
   <section id="wallet" class="page-section">
