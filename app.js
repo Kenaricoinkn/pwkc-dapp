@@ -225,48 +225,57 @@ function swapTokens() {
 function stakeTokens() {
   const amount = parseFloat(document.getElementById("stakeAmount").value);
   if (isNaN(amount) || amount <= 0) {
-    document.getElementById("stakeResult").innerText = "Enter a valid amount.";
+    alert("Enter a valid amount to stake!");
     return;
   }
 
-  // Simpan staking user
-  let balance = localStorage.getItem("balance") ? parseFloat(localStorage.getItem("balance")) : 1000;
+  let balance = getBalance("KN");
   if (amount > balance) {
-    document.getElementById("stakeResult").innerText = "Not enough balance.";
+    alert("Not enough balance!");
     return;
   }
 
-  balance -= amount;
-  localStorage.setItem("balance", balance);
+  // Kurangi balance
+  updateBalance("KN", balance - amount);
 
-  // Update result
-  document.getElementById("stakeResult").innerText = `✅ You staked ${amount} KN.`;
-  updateWalletUI();
+  // Simpan stake di localStorage
+  localStorage.setItem("stakedAmount", amount);
+  localStorage.setItem("stakeTime", Date.now());
 
-  // Animasi staking progress
-  const progressBar = document.getElementById("progressBar");
-  const progressText = document.getElementById("progressText");
-
-  let width = 0;
-  progressBar.style.width = "0%";
-  progressText.innerText = "Staking in progress...";
-
-  let interval = setInterval(() => {
-    if (width >= 100) {
-      clearInterval(interval);
-      progressText.innerText = `🔥 Staked ${amount} KN successfully!`;
-    } else {
-      width += 2;
-      progressBar.style.width = width + "%";
-    }
-  }, 200);
+  // Update UI
+  document.getElementById("activeStaking").innerText = `Staked: ${amount} KN`;
+  document.getElementById("stakeAmount").value = "";
 }
 
 function withdrawStake() {
-  document.getElementById("progressBar").style.width = "0%";
-  document.getElementById("progressText").innerText = "No active staking";
-  document.getElementById("stakeResult").innerText = "❌ Staking withdrawn.";
+  let staked = parseFloat(localStorage.getItem("stakedAmount") || "0");
+  if (staked <= 0) {
+    alert("No active staking to withdraw!");
+    return;
+  }
+
+  // Tambahkan balance
+  let balance = getBalance("KN");
+  updateBalance("KN", balance + staked);
+
+  // Reset stake
+  localStorage.setItem("stakedAmount", "0");
+  localStorage.removeItem("stakeTime");
+
+  // Update UI
+  document.getElementById("activeStaking").innerText = "No active staking";
+  alert(`Successfully withdrawn ${staked} KN`);
 }
+
+// Saat load halaman, cek staking aktif
+document.addEventListener("DOMContentLoaded", () => {
+  let staked = parseFloat(localStorage.getItem("stakedAmount") || "0");
+  if (staked > 0) {
+    document.getElementById("activeStaking").innerText = `Staked: ${staked} KN`;
+  } else {
+    document.getElementById("activeStaking").innerText = "No active staking";
+  }
+});
 
 // ==========================
 // FAUCET (Persisted, 1x / 24h)
