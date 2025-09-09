@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Connect Wallet - MAITRIX + Web3Modal v2</title>
+  <title>Connect Wallet - MAITRIX Style</title>
   <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
   <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
   <style>
@@ -14,6 +14,7 @@
       margin: 0;
       padding: 0;
     }
+    h2 { margin-top: 40px; }
     button {
       background: #111;
       color: #0f0;
@@ -29,7 +30,6 @@
       background: #0f0;
       color: #000;
     }
-
     /* Modal Overlay */
     #walletModal {
       display: none;
@@ -114,7 +114,7 @@
 
   <div id="walletInfo" style="margin-top:20px; color:#fff;"></div>
 
-  <!-- Web3Modal v2 (pakai module) -->
+  <!-- Web3Modal v2 -->
   <script type="module">
     import { EthereumClient, w3mConnectors, w3mProvider } from "https://cdn.jsdelivr.net/npm/@web3modal/ethereum@2.7.1/dist/index.umd.js";
     import { Web3Modal } from "https://cdn.jsdelivr.net/npm/@web3modal/html@2.7.1/dist/index.umd.js";
@@ -141,11 +141,19 @@
 
     const ethereumClient = new EthereumClient(wagmiClient, chains);
 
-    // Simpan ke global biar bisa dipanggil dari script biasa
+    // Buat instance global
     window.myWeb3Modal = new Web3Modal(
       { projectId, themeMode: "dark", themeVariables: { "--w3m-accent-color": "#0f0" } },
       ethereumClient
     );
+    window.web3ModalReady = true;
+
+    // Event listener untuk update info setelah connect via All Wallets
+    wagmiClient.subscribe(state => {
+      if(state.status === "connected" && state.data?.account){
+        document.getElementById("walletInfo").innerText = "✅ Connected: " + state.data.account;
+      }
+    });
   </script>
 
   <script>
@@ -184,11 +192,11 @@
 
     // All Wallets → buka Web3Modal v2
     function openAllWallets(){
-      if(window.myWeb3Modal){
+      if(window.web3ModalReady && window.myWeb3Modal){
         window.myWeb3Modal.openModal();
         closeModal();
       } else {
-        alert("Web3Modal belum siap, coba reload halaman");
+        alert("⏳ Tunggu sebentar, Web3Modal masih loading...");
       }
     }
   </script>
