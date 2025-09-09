@@ -219,3 +219,40 @@ h1, h2, h3 {
   from { text-shadow: 0 0 5px #00ffcc, 0 0 10px #00ffaa; }
   to   { text-shadow: 0 0 20px #00ffcc, 0 0 40px #00ffaa; }
 }
+#leaderboard {
+  padding: 20px;
+  text-align: center;
+}
+
+#leaderboardList {
+  max-width: 600px;
+  margin: 0 auto;
+  border-radius: 10px;
+  padding: 15px;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(0,255,255,0.3);
+}
+
+#leaderboardList table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#leaderboardList th, #leaderboardList td {
+  padding: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+#leaderboardList tr:nth-child(1) td {
+  color: gold;
+  font-weight: bold;
+}
+#leaderboardList tr:nth-child(2) td {
+  color: silver;
+  font-weight: bold;
+}
+#leaderboardList tr:nth-child(3) td {
+  color: #cd7f32;
+  font-weight: bold;
+}
