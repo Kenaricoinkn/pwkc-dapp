@@ -5,8 +5,6 @@
   <title>Connect Wallet - MAITRIX + Web3Modal v2</title>
   <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
   <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
-  <script src="https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-  <script src="https://unpkg.com/@web3modal/html@2.7.1/dist/index.umd.js"></script>
   <style>
     body {
       background: #000;
@@ -116,6 +114,7 @@
 
   <div id="walletInfo" style="margin-top:20px; color:#fff;"></div>
 
+  <!-- Web3Modal v2 (pakai module) -->
   <script type="module">
     import { EthereumClient, w3mConnectors, w3mProvider } from "https://cdn.jsdelivr.net/npm/@web3modal/ethereum@2.7.1/dist/index.umd.js";
     import { Web3Modal } from "https://cdn.jsdelivr.net/npm/@web3modal/html@2.7.1/dist/index.umd.js";
@@ -142,8 +141,8 @@
 
     const ethereumClient = new EthereumClient(wagmiClient, chains);
 
-    // Buat Web3Modal instance (untuk tombol All Wallets)
-    window.web3modal = new Web3Modal(
+    // Simpan ke global biar bisa dipanggil dari script biasa
+    window.myWeb3Modal = new Web3Modal(
       { projectId, themeMode: "dark", themeVariables: { "--w3m-accent-color": "#0f0" } },
       ethereumClient
     );
@@ -178,15 +177,19 @@
       closeModal();
     }
 
-    // Trust Wallet → pakai WalletConnect
+    // Trust Wallet (pakai WalletConnect)
     async function connectTrustWallet(){
       return connectWalletConnect();
     }
 
-    // All Wallets (panggil Web3Modal v2)
+    // All Wallets → buka Web3Modal v2
     function openAllWallets(){
-      window.web3modal.openModal();
-      closeModal();
+      if(window.myWeb3Modal){
+        window.myWeb3Modal.openModal();
+        closeModal();
+      } else {
+        alert("Web3Modal belum siap, coba reload halaman");
+      }
     }
   </script>
 </body>
