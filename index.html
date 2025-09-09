@@ -18,11 +18,23 @@
       <li><a href="#" onclick="navigate('leaderboard')">Leaderboard</a></li>
       <li><a href="#" onclick="navigate('about')">About</a></li>
       <li><a href="#" onclick="navigate('contact')">Contact</a></li>
+      <li><a href="#" onclick="logout()">Logout</a></li>
     </ul>
   </nav>
 
+  <!-- LOGIN -->
+  <section id="login" class="page-section active">
+    <h2>Login</h2>
+    <div class="login-box">
+      <input type="text" id="usernameInput" placeholder="Enter username">
+      <input type="text" id="walletAddrInput" placeholder="Enter your wallet address">
+      <button onclick="login()">Login</button>
+      <p id="loginResult"></p>
+    </div>
+  </section>
+
   <!-- HOME -->
-  <section id="home" class="page-section active">
+  <section id="home" class="page-section">
     <div class="home-container">
       <img src="img/Logo.png" alt="Kenari Coin Logo" class="home-logo">
       <h1>Welcome to Kenari Coin</h1>
@@ -71,8 +83,6 @@
   <section id="wallet" class="page-section">
     <h2>Your Wallet</h2>
     <div class="wallet-box">
-      <input type="text" id="walletInput" placeholder="Paste wallet address">
-      <button onclick="loadWallet()">Check Wallet</button>
       <div id="walletInfo" class="wallet-info"></div>
     </div>
   </section>
