@@ -1,22 +1,23 @@
 // ==========================
-// Kenari Coin Web App Logic (Persisted)
+// Kenari Coin Web App Logic (Persisted + Leaderboard)
 // ==========================
 
-// State aktif (di memori untuk sesi berjalan)
+// State aktif
 let currentWallet = null;
 let currentUser = null;
 
-// Kunci LocalStorage terpusat
+// Kunci LocalStorage
 const LS_KEYS = {
   USERS: "kenariUsers",        // [{username, walletAddr}]
   ACTIVE: "activeUser",        // "0xabc..."
   BALANCES: "kn_balances",     // {walletAddr: {KN, USDC}}
   STAKED: "kn_staked",         // {walletAddr: number}
-  FAUCET: "kn_faucet"          // {walletAddr: timestamp}
+  FAUCET: "kn_faucet",         // {walletAddr: timestamp}
+  LEADERBOARD: "kn_leaderboard"// [{username, walletAddr, staked}]
 };
 
 // ==========================
-// Util LocalStorage (map helpers)
+// Util LocalStorage
 // ==========================
 function getMap(key) {
   try { return JSON.parse(localStorage.getItem(key)) || {}; }
@@ -36,11 +37,14 @@ function toggleMenu() {
 function navigate(id) {
   document.querySelectorAll(".page-section").forEach(s => s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
-  document.querySelector(".nav-links").classList.remove("active"); // auto close menu
+  document.querySelector(".nav-links").classList.remove("active"); // auto close
 
   if (id === "wallet") {
     loadWallet();
     updateActiveStakingUI();
+  }
+  if (id === "leaderboard") {
+    loadLeaderboard();
   }
 }
 
@@ -90,18 +94,18 @@ function login() {
   currentUser = username;
   currentWallet = walletAddr;
 
-  // Seed saldo kalau belum ada
+  // Seed saldo
   getBalance(walletAddr);
 
   resultEl.innerText = "✅ Login successful!";
   updateAuthUI();
   navigate("home");
   loadWallet();
-  updateActiveStakingUI(); // fix
+  updateActiveStakingUI();
+  loadLeaderboard();
 }
 
 function logout() {
-  // Hapus user aktif dari daftar (logout = remove akun aktif dari device)
   let users = getUsers().filter(u => u.walletAddr !== currentWallet);
   saveUsers(users);
 
@@ -125,7 +129,8 @@ window.onload = () => {
     updateAuthUI();
     navigate("home");
     loadWallet();
-    updateActiveStakingUI(); // fix
+    updateActiveStakingUI();
+    loadLeaderboard();
   } else {
     updateAuthUI();
     navigate("login");
@@ -133,15 +138,15 @@ window.onload = () => {
 };
 
 // ==========================
-// BALANCE (Persisted)
+// BALANCE
 // ==========================
 function getBalance(addr) {
   const map = getMap(LS_KEYS.BALANCES);
   if (!map[addr]) {
-    map[addr] = { KN: 1000, USDC: 500 }; // seed awal sekali saja
+    map[addr] = { KN: 1000, USDC: 500 };
     setMap(LS_KEYS.BALANCES, map);
   }
-  return { ...map[addr] }; // return copy supaya wajib set ulang saat ubah
+  return { ...map[addr] };
 }
 function setBalance(addr, newBal) {
   const map = getMap(LS_KEYS.BALANCES);
@@ -185,7 +190,7 @@ function loadWallet() {
 }
 
 // ==========================
-// SWAP (Dummy, persisted)
+// SWAP
 // ==========================
 function swapTokens() {
   if (!currentWallet) return alert("⚠️ Please login first.");
@@ -207,7 +212,7 @@ function swapTokens() {
       return;
     }
     bal.USDC -= amount;
-    bal.KN += amount * 10; // rate dummy
+    bal.KN += amount * 10;
     setBalance(currentWallet, bal);
     resultEl.innerText = `✅ Swapped ${amount} USDC → ${amount * 10} KN`;
   } else {
@@ -216,7 +221,7 @@ function swapTokens() {
       return;
     }
     bal.KN -= amount;
-    bal.USDC += amount / 10; // rate dummy
+    bal.USDC += amount / 10;
     setBalance(currentWallet, bal);
     resultEl.innerText = `✅ Swapped ${amount} KN → ${(amount / 10).toFixed(2)} USDC`;
   }
@@ -225,7 +230,7 @@ function swapTokens() {
 }
 
 // ==========================
-// STAKING (Persisted)
+// STAKING
 // ==========================
 function stakeTokens() {
   if (!currentWallet) return alert("⚠️ Please login first.");
@@ -242,18 +247,17 @@ function stakeTokens() {
     return;
   }
 
-  // Kurangi balance
   bal.KN -= amount;
   setBalance(currentWallet, bal);
 
-  // Tambahkan staking
   let st = getStaked(currentWallet);
   setStaked(currentWallet, st + amount);
 
-  // Update UI
   updateActiveStakingUI();
   loadWallet();
   document.getElementById("stakeAmount").value = "";
+
+  loadLeaderboard();
 }
 
 function withdrawStake() {
@@ -265,21 +269,19 @@ function withdrawStake() {
     return;
   }
 
-  // Kembalikan ke balance
   let bal = getBalance(currentWallet);
   bal.KN += st;
   setBalance(currentWallet, bal);
 
-  // Reset staking
   setStaked(currentWallet, 0);
 
-  // Update UI
   updateActiveStakingUI();
   loadWallet();
   alert(`✅ Successfully withdrawn ${st} KN`);
+
+  loadLeaderboard();
 }
 
-// UI staking aktif + animasi
 function updateActiveStakingUI() {
   const activeStakingEl = document.getElementById("activeStaking");
   if (!activeStakingEl || !currentWallet) return;
@@ -298,7 +300,7 @@ function updateActiveStakingUI() {
 }
 
 // ==========================
-// FAUCET (Persisted, 1x / 24h)
+// FAUCET
 // ==========================
 function claimFaucet() {
   if (!currentWallet) return alert("⚠️ Please login first.");
@@ -309,7 +311,7 @@ function claimFaucet() {
 
   const DAY_MS = 24 * 60 * 60 * 1000;
   if (last && now - last < DAY_MS) {
-    const sisa = Math.ceil((DAY_MS - (now - last)) / (60 * 1000)); // sisa menit
+    const sisa = Math.ceil((DAY_MS - (now - last)) / (60 * 1000));
     resultEl.innerText = `⚠️ Faucet already claimed. Try again in ~${sisa} minutes.`;
     return;
   }
@@ -321,4 +323,67 @@ function claimFaucet() {
   setFaucetTime(currentWallet, now);
   resultEl.innerText = "✅ You claimed 100 KN from faucet!";
   loadWallet();
+}
+
+// ==========================
+// LEADERBOARD (Persistent)
+// ==========================
+function seedDummyLeaderboard(n = 50) {
+  const existing = JSON.parse(localStorage.getItem(LS_KEYS.LEADERBOARD) || "null");
+  if (existing) return existing;
+
+  const list = [];
+  for (let i = 0; i < n; i++) {
+    const addr =
+      "0x" +
+      Math.random().toString(16).substr(2, 8) +
+      "..." +
+      Math.random().toString(16).substr(2, 4);
+    const stake = Math.floor(Math.random() * 10000) + 100;
+    list.push({ username: "User" + (i + 1), walletAddr: addr, staked: stake });
+  }
+  localStorage.setItem(LS_KEYS.LEADERBOARD, JSON.stringify(list));
+  return list;
+}
+
+function getLeaderboard() {
+  return JSON.parse(localStorage.getItem(LS_KEYS.LEADERBOARD) || "[]");
+}
+function saveLeaderboard(list) {
+  localStorage.setItem(LS_KEYS.LEADERBOARD, JSON.stringify(list));
+}
+
+function loadLeaderboard() {
+  let dummy = seedDummyLeaderboard(50);
+  let users = getUsers();
+
+  let realUsers = users.map((u) => ({
+    username: u.username,
+    walletAddr: u.walletAddr,
+    staked: getStaked(u.walletAddr),
+  }));
+
+  let all = [...dummy, ...realUsers];
+  all.sort((a, b) => b.staked - a.staked);
+
+  saveLeaderboard(all);
+
+  const leaderboardEl = document.getElementById("leaderboardList");
+  if (!leaderboardEl) return;
+
+  let html =
+    "<table><tr><th>Rank</th><th>User</th><th>Wallet</th><th>Staked KN</th></tr>";
+  all.forEach((u, i) => {
+    const highlight =
+      currentWallet && u.walletAddr === currentWallet ? " style='background:#222;color:#0f0;'" : "";
+    html += `<tr${highlight}>
+      <td>#${i + 1}</td>
+      <td>${u.username}</td>
+      <td>${u.walletAddr}</td>
+      <td>${u.staked}</td>
+    </tr>`;
+  });
+  html += "</table>";
+
+  leaderboardEl.innerHTML = html;
 }
