@@ -256,3 +256,36 @@ h1, h2, h3 {
   color: #cd7f32;
   font-weight: bold;
 }
+/* Leaderboard Table */
+#leaderboardList {
+  overflow-x: auto;
+}
+
+#leaderboardList table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+#leaderboardList th, #leaderboardList td {
+  padding: 10px;
+  text-align: center;
+  color: #fff;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#leaderboardList th {
+  background: #111;
+  color: #FFD700;
+}
+
+#leaderboardList tr:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+#leaderboardList tr[style] {
+  font-weight: bold;
+}
