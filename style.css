@@ -208,3 +208,14 @@ h1, h2, h3 {
   text-align: center;
   box-shadow: 0 0 8px rgba(255, 235, 59, 0.4);
 }
+.glowText {
+  font-weight: bold;
+  color: #00ffcc;
+  text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc, 0 0 40px #00ffaa;
+  animation: pulseGlow 2s infinite alternate;
+}
+
+@keyframes pulseGlow {
+  from { text-shadow: 0 0 5px #00ffcc, 0 0 10px #00ffaa; }
+  to   { text-shadow: 0 0 20px #00ffcc, 0 0 40px #00ffaa; }
+}
