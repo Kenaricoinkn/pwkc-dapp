@@ -2,58 +2,192 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Connect Wallet</title>
+  <title>Connect Wallet - MAITRIX + Web3Modal v2</title>
   <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
   <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
-  <script src="https://unpkg.com/evm-chains/lib/index.min.js"></script>
-  <script src="https://unpkg.com/web3modal@1.9.12/dist/index.js"></script>
+  <script src="https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="https://unpkg.com/@web3modal/html@2.7.1/dist/index.umd.js"></script>
   <style>
-    body { background:#000; color:#0f0; font-family:monospace; text-align:center; padding:20px;}
-    button { background:#111; color:#0f0; border:1px solid #0f0; padding:10px 20px; margin:10px; cursor:pointer; border-radius:8px;}
-    #walletInfo { margin-top:20px; color:#fff; }
+    body {
+      background: #000;
+      color: #0f0;
+      font-family: monospace;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    button {
+      background: #111;
+      color: #0f0;
+      border: 1px solid #0f0;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 12px;
+      font-size: 14px;
+      margin-top: 40px;
+      transition: all 0.2s;
+    }
+    button:hover {
+      background: #0f0;
+      color: #000;
+    }
+
+    /* Modal Overlay */
+    #walletModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    /* Modal Box */
+    .modal-box {
+      background: #111;
+      padding: 20px;
+      border-radius: 16px;
+      width: 320px;
+      box-shadow: 0 0 20px #0f0;
+      animation: pop 0.25s ease;
+    }
+    @keyframes pop {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal-box h3 {
+      color: #0f0;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .wallet-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #222;
+      border: 1px solid #0f0;
+      padding: 10px 14px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .wallet-btn:hover {
+      background: #0f0;
+      color: #000;
+    }
+    .badge {
+      font-size: 11px;
+      background: #0f0;
+      color: #000;
+      border-radius: 6px;
+      padding: 2px 6px;
+    }
+    .close-btn {
+      text-align: center;
+      background: #400;
+      border: 1px solid #f00;
+      color: #f00;
+    }
+    .close-btn:hover {
+      background: #f00;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
-  <h2>MAITRIX Connect Wallet</h2>
-  <button id="connectBtn">🔗 Connect Wallet</button>
-  <div id="walletInfo"></div>
+  <h2>MAITRIX Style Connect Wallet</h2>
+  <button id="openModal">🔗 Connect Wallet</button>
+
+  <!-- Modal Custom -->
+  <div id="walletModal">
+    <div class="modal-box">
+      <h3>Connect Wallet</h3>
+      <div class="wallet-btn" onclick="connectMetaMask()">🦊 MetaMask</div>
+      <div class="wallet-btn" onclick="connectWalletConnect()">🌐 WalletConnect</div>
+      <div class="wallet-btn" onclick="connectTrustWallet()">🔵 Trust Wallet</div>
+      <div class="wallet-btn" onclick="openAllWallets()">
+        📱 All Wallets <span class="badge">530+</span>
+      </div>
+      <div class="wallet-btn close-btn" onclick="closeModal()">❌ Close</div>
+    </div>
+  </div>
+
+  <div id="walletInfo" style="margin-top:20px; color:#fff;"></div>
+
+  <script type="module">
+    import { EthereumClient, w3mConnectors, w3mProvider } from "https://cdn.jsdelivr.net/npm/@web3modal/ethereum@2.7.1/dist/index.umd.js";
+    import { Web3Modal } from "https://cdn.jsdelivr.net/npm/@web3modal/html@2.7.1/dist/index.umd.js";
+    import { configureChains, createClient } from "https://cdn.jsdelivr.net/npm/@wagmi/core@1.3.6/dist/index.umd.js";
+
+    const chains = [{
+      id: 56,
+      name: "Binance Smart Chain",
+      network: "bsc",
+      nativeCurrency: { name: "BNB", symbol: "BNB", decimals: 18 },
+      rpcUrls: { default: { http: ["https://bsc-dataseed.binance.org/"] } },
+      blockExplorers: { default: { name: "BscScan", url: "https://bscscan.com" } }
+    }];
+
+    const projectId = "04d95c797b104ad69d34f7e2feccf794"; // Project ID kamu
+
+    const { provider } = configureChains(chains, [w3mProvider({ projectId })]);
+
+    const wagmiClient = createClient({
+      autoConnect: true,
+      connectors: w3mConnectors({ projectId, chains }),
+      provider
+    });
+
+    const ethereumClient = new EthereumClient(wagmiClient, chains);
+
+    // Buat Web3Modal instance (untuk tombol All Wallets)
+    window.web3modal = new Web3Modal(
+      { projectId, themeMode: "dark", themeVariables: { "--w3m-accent-color": "#0f0" } },
+      ethereumClient
+    );
+  </script>
 
   <script>
-    let web3Modal;
-    let provider;
-    let selectedAccount;
+    // Modal custom handler
+    const modal = document.getElementById("walletModal");
+    document.getElementById("openModal").onclick = ()=> modal.style.display="flex";
+    function closeModal(){ modal.style.display="none"; }
 
-    async function init() {
-      const providerOptions = {
-        walletconnect: {
-          package: window.WalletConnectProvider.default,
-          options: {
-            infuraId: "04d95c797b104ad69d34f7e2feccf794" // ganti dengan Project ID sendiri
-          }
-        }
-      };
-
-      web3Modal = new window.Web3Modal.default({
-        cacheProvider: false,
-        providerOptions,
-        theme: "dark"
-      });
-    }
-
-    async function connectWallet() {
-      try {
-        provider = await web3Modal.connect();
-        const web3 = new Web3(provider);
-        const accounts = await web3.eth.getAccounts();
-        selectedAccount = accounts[0];
-        document.getElementById("walletInfo").innerText = "✅ Connected: " + selectedAccount;
-      } catch(e) {
-        console.error("Could not connect to wallet", e);
+    // MetaMask connect
+    async function connectMetaMask(){
+      if(window.ethereum){
+        try{
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          document.getElementById("walletInfo").innerText = "✅ MetaMask: " + accounts[0];
+          closeModal();
+        }catch(e){ console.error(e); }
+      }else{
+        alert("MetaMask not installed!");
       }
     }
 
-    document.getElementById("connectBtn").addEventListener("click", connectWallet);
-    window.addEventListener('load', init);
+    // WalletConnect connect
+    async function connectWalletConnect(){
+      const provider = new WalletConnectProvider.default({ infuraId: "04d95c797b104ad69d34f7e2feccf794" });
+      await provider.enable();
+      const web3 = new Web3(provider);
+      const accounts = await web3.eth.getAccounts();
+      document.getElementById("walletInfo").innerText = "✅ WalletConnect: " + accounts[0];
+      closeModal();
+    }
+
+    // Trust Wallet → pakai WalletConnect
+    async function connectTrustWallet(){
+      return connectWalletConnect();
+    }
+
+    // All Wallets (panggil Web3Modal v2)
+    function openAllWallets(){
+      window.web3modal.openModal();
+      closeModal();
+    }
   </script>
 </body>
 </html>
