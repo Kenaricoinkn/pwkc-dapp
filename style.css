@@ -1,19 +1,33 @@
-/* Import Fonts */
-body {
-  font-family: 'Poppins', sans-serif;
-  background: linear-gradient(-45deg, #0d0d0d, #1a1a1a, #111, #0f0f0f);
-  background-size: 400% 400%;
-  animation: gradientBG 15s ease infinite;
-  color: #eee;
-  line-height: 1.6;
-  min-height: 100vh;
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* Background Gradient Animation */
-@keyframes gradientBG {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #0a0a0a, #1a1a1a, #0d0d0d);
+  color: #f0f0f0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Background animation */
+body::before {
+  content: '';
+  position: fixed;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,215,0,0.2), transparent 70%);
+  animation: moveBg 15s linear infinite;
+  z-index: -1;
+}
+
+@keyframes moveBg {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(-25%, -25%); }
+  100% { transform: translate(0, 0); }
 }
 
 /* Navbar */
@@ -21,139 +35,158 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(10, 10, 10, 0.9);
-  padding: 12px 20px;
-  border-bottom: 1px solid #333;
+  background: #111;
+  padding: 10px 20px;
+  border-bottom: 2px solid #ffd700;
   position: sticky;
   top: 0;
   z-index: 1000;
-  backdrop-filter: blur(6px);
 }
+
 .logo {
   display: flex;
   align-items: center;
-  gap: 8px;
+  font-size: 1.2rem;
   font-weight: bold;
-  font-family: 'Orbitron', sans-serif;
   color: #ffd700;
-  text-transform: uppercase;
 }
+
 .logo img {
-  height: 36px;
-  animation: pulseLogo 3s infinite ease-in-out;
-  filter: drop-shadow(0 0 8px #ffd700);
+  width: 32px;
+  margin-right: 8px;
 }
-@keyframes pulseLogo {
-  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 8px #ffd700); }
-  50% { transform: scale(1.1); filter: drop-shadow(0 0 16px #ffcc00); }
+
+.logo-anim {
+  animation: spinLogo 5s linear infinite;
 }
-.hamburger {
-  display: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #ffd700;
+
+@keyframes spinLogo {
+  0% { transform: rotate(0); }
+  100% { transform: rotate(360deg); }
 }
+
 .nav-links {
-  display: flex;
   list-style: none;
+  display: flex;
   gap: 20px;
 }
+
 .nav-links li a {
-  color: #eee;
+  color: #fff;
   text-decoration: none;
-  padding: 8px 14px;
-  transition: all 0.3s;
-  border-radius: 6px;
+  font-weight: 500;
+  transition: color 0.3s;
 }
+
 .nav-links li a:hover {
-  background: #ffd700;
-  color: #111;
-  box-shadow: 0 0 12px #ffd700;
+  color: #ffd700;
+}
+
+.menu-toggle {
+  display: none;
+  font-size: 1.5rem;
+  cursor: pointer;
 }
 
 /* Responsive Navbar */
 @media (max-width: 768px) {
-  .hamburger { display: block; }
+  .menu-toggle { display: block; }
   .nav-links {
-    display: none;
-    flex-direction: column;
     position: absolute;
-    top: 55px;
+    top: 60px;
     right: 0;
-    background: rgba(15,15,15,0.95);
+    background: #111;
+    flex-direction: column;
     width: 200px;
-    padding: 15px;
-    border-radius: 10px 0 0 10px;
+    display: none;
   }
-  .nav-links.active { display: flex; }
-  .nav-links li { margin: 10px 0; }
+  .nav-links.show { display: flex; }
 }
 
 /* Sections */
 .page-section {
-  display: none;
-  padding: 50px 20px;
+  padding: 60px 20px;
   text-align: center;
-}
-.page-section.active {
-  display: block;
-  animation: fadeIn 0.7s ease-in-out;
-}
-@keyframes fadeIn { from {opacity:0; transform: translateY(15px);} to {opacity:1; transform: translateY(0);} }
-
-/* Home */
-.home-logo {
-  width: 160px;
-  margin: 25px auto;
-  display: block;
-  animation: float 4s ease-in-out infinite;
-}
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  display: none;
 }
 
-/* Form & Box */
-.form-box, .staking-container, .wallet-info {
-  max-width: 420px;
-  margin: 20px auto;
-  background: rgba(20,20,20,0.9);
-  padding: 22px;
+.page-section.active { display: block; }
+
+/* Boxes */
+.staking-container, .wallet-box {
+  background: rgba(30,30,30,0.9);
+  border: 1px solid #444;
   border-radius: 15px;
-  box-shadow: 0 0 12px rgba(255,215,0,0.3);
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 500px;
+  box-shadow: 0 0 15px rgba(255,215,0,0.2);
 }
-.form-box input, .staking-container input, select {
-  width: 100%;
-  padding: 12px;
-  margin: 10px 0;
-  border-radius: 8px;
-  border: 1px solid #555;
-  background: #111;
-  color: #eee;
+
+.staking-container h3, .wallet-box h3 {
+  color: #ffd700;
 }
+
+/* Buttons */
 button {
-  padding: 12px 18px;
   background: #ffd700;
-  color: #111;
   border: none;
+  padding: 10px 20px;
   border-radius: 8px;
   cursor: pointer;
-  margin: 8px 0;
   font-weight: bold;
-  transition: all 0.3s ease;
-}
-button:hover {
-  background: #ffcc00;
-  box-shadow: 0 0 15px #ffd700;
+  margin-top: 10px;
+  transition: transform 0.2s;
 }
 
-/* Wallet Info */
-.wallet-info p { margin: 10px 0; font-size: 14px; }
+button:hover { transform: scale(1.05); }
 
-/* Headings */
-h1, h2, h3 {
-  font-family: 'Orbitron', sans-serif;
+/* Inputs */
+input, select {
+  padding: 10px;
+  border: 1px solid #555;
+  border-radius: 8px;
+  margin-top: 10px;
+  width: 100%;
+  background: #111;
+  color: #fff;
+}
+
+/* Progress Staking */
+.staking-progress {
+  margin-top: 15px;
+  background: rgba(20,20,20,0.9);
+  border: 1px solid #444;
+  border-radius: 12px;
+  padding: 15px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(255,215,0,0.3);
+}
+
+.progress-bar {
+  height: 12px;
+  background: linear-gradient(90deg, #ffd700, #ff6600, #ffd700);
+  background-size: 200% 100%;
+  animation: progressAnim 2s linear infinite;
+  width: 0%;
+  border-radius: 8px;
+  transition: width 1s ease-in-out;
+}
+
+@keyframes progressAnim {
+  0% { background-position: 0% 0; }
+  100% { background-position: 200% 0; }
+}
+
+#progressText {
+  margin-top: 8px;
+  font-size: 14px;
   color: #ffd700;
-  letter-spacing: 1px;
-  margin-bottom: 15px;
+  font-weight: bold;
+  animation: glowText 1.5s ease-in-out infinite;
+}
+
+@keyframes glowText {
+  0%, 100% { text-shadow: 0 0 8px #ffd700; }
+  50% { text-shadow: 0 0 16px #ff9900; }
 }
