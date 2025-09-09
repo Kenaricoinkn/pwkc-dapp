@@ -3,39 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kenari Coin (KN)</title>
+  <title>Kenari Coin</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Navbar -->
-  <header>
-    <div class="logo">Kenari<span>Coin</span></div>
-    <nav class="nav-links" id="navLinks">
-      <a href="#home">Home</a>
-      <a href="#staking">Staking</a>
-      <a href="#wallet">Wallet</a>
-      <a href="#leaderboard">Leaderboard</a>
-      <a href="#about">About</a>
-      <a href="#contact">Contact</a>
-    </nav>
-    <div class="hamburger" id="hamburger">&#9776;</div>
-  </header>
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="logo">KenariCoin</div>
+    <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+    <ul class="nav-links">
+      <li><a href="#" onclick="navigate('home')">Home</a></li>
+      <li><a href="#" onclick="navigate('staking')">Staking</a></li>
+      <li><a href="#" onclick="navigate('wallet')">Wallet</a></li>
+      <li><a href="#" onclick="navigate('leaderboard')">Leaderboard</a></li>
+      <li><a href="#" onclick="navigate('about')">About</a></li>
+      <li><a href="#" onclick="navigate('contact')">Contact</a></li>
+    </ul>
+  </nav>
 
   <!-- HOME -->
   <section id="home" class="page-section active">
     <h1>Welcome to Kenari Coin</h1>
-    <p>KN is a modern digital asset with fast, secure, and scalable transactions.</p>
-    <div class="hero-animation"></div>
+    <p>Revolutionary community-driven cryptocurrency.</p>
   </section>
 
   <!-- STAKING -->
   <section id="staking" class="page-section">
     <h2>Staking & Swap</h2>
     <div class="staking-container">
-      <div class="wallet-input">
-        <input type="text" id="walletAddress" placeholder="Paste your wallet address">
-      </div>
       
+      <!-- Swap -->
       <div class="swap-box">
         <h3>Swap</h3>
         <select id="swapFrom">
@@ -47,17 +44,21 @@
         <p id="swapResult"></p>
       </div>
 
+      <!-- Stake -->
       <div class="stake-box">
         <h3>Stake</h3>
         <input type="number" id="stakeAmount" placeholder="Enter amount KN">
         <button onclick="stakeTokens()">Stake</button>
+        <input type="text" id="walletAddress" placeholder="Paste wallet address for Withdraw">
         <button onclick="withdrawStake()">Withdraw</button>
         <p>APY: <strong>12%</strong></p>
         <p id="stakeResult"></p>
       </div>
 
+      <!-- Faucet -->
       <div class="faucet-box">
         <h3>Faucet</h3>
+        <input type="text" id="faucetWallet" placeholder="Paste wallet address for Faucet">
         <button onclick="claimFaucet()">Claim 100 KN</button>
         <p id="faucetResult"></p>
       </div>
@@ -71,7 +72,7 @@
       <input type="text" id="walletInput" placeholder="Paste wallet address">
       <button onclick="loadWallet()">Check Wallet</button>
       <div id="walletInfo" class="wallet-info">
-        <!-- Saldo akan muncul di sini -->
+        <!-- Wallet info muncul disini -->
       </div>
     </div>
   </section>
@@ -80,7 +81,9 @@
   <section id="leaderboard" class="page-section">
     <h2>Leaderboard</h2>
     <ul id="leaderboardList">
-      <!-- Data leaderboard dummy -->
+      <li>0x111...abcd — 5000 KN</li>
+      <li>0x222...efgh — 3200 KN</li>
+      <li>0x333...ijkl — 2100 KN</li>
     </ul>
   </section>
 
