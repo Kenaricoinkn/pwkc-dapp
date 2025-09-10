@@ -5,19 +5,12 @@
 // State aktif
 let currentWallet = null;
 let currentUser = null;
-const FAUCET_API_URL = "http://localhost:3000/faucet"; 
-const LS_KEYS = {
-// kalau deploy ke VPS, ganti jadi https://domainkamu.com/faucet
-  USERS: "kenariUsers",        // [{username, walletAddr}]
-  ACTIVE: "activeUser",        // "0xabc..."
-  BALANCES: "kn_balances",     // {walletAddr: {KN, USDC}}
-  STAKED: "kn_staked",         // {walletAddr: number}
-  FAUCET: "kn_faucet",         // {walletAddr: timestamp}
-  LEADERBOARD: "kn_leaderboard"// [{username, walletAddr, staked}]
-};
+
+// API Faucet (ubah ke domain server kamu kalau deploy ke VPS)
+const FAUCET_API_URL = "http://localhost:3000/faucet";
+
 // Kunci LocalStorage
 const LS_KEYS = {
-// kalau deploy ke VPS, ganti jadi https://domainkamu.com/faucet
   USERS: "kenariUsers",        // [{username, walletAddr}]
   ACTIVE: "activeUser",        // "0xabc..."
   BALANCES: "kn_balances",     // {walletAddr: {KN, USDC}}
