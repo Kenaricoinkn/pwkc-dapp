@@ -19,6 +19,7 @@
       <li><a href="#" onclick="navigate('home')">Home</a></li>
       <li><a href="#" onclick="navigate('staking')">Staking</a></li>
       <li><a href="#" onclick="navigate('wallet')">Wallet</a></li>
+      <li><a href="#" onclick="navigate('liquidity')">Liquidity</a></li>
       <li><a href="#" onclick="navigate('faucet')">Faucet</a></li>
       <li><a href="#" onclick="navigate('leaderboard')">Leaderboard</a></li>
       <li><a href="#" onclick="navigate('about')">About</a></li>
@@ -85,6 +86,17 @@
     <h2>Your Wallet</h2>
     <div id="walletInfo" class="wallet-info"></div>
   </section>
+  <!-- LIQUIDITY -->
+<section id="liquidity" class="page-section">
+  <h2>Liquidity Pool</h2>
+  <div class="form-box">
+    <input type="number" id="liqKN" placeholder="Amount KN">
+    <input type="number" id="liqUSDC" placeholder="Amount USDC">
+    <button onclick="addLiquidity()">Add Liquidity</button>
+    <button onclick="removeLiquidity()">Remove Liquidity</button>
+  </div>
+  <div id="liquidityInfo"></div>
+</section>
 
 <!-- FAUCET -->
 <section id="faucet" class="page-section">
