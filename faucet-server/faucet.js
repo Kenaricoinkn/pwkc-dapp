@@ -112,8 +112,8 @@ app.post("/faucet", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Faucet KN running on http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`✅ Faucet server running on port ${PORT}`);
   console.log(`Faucet Wallet: ${faucetWallet.address}`);
   console.log(`Token KN: ${TOKEN_ADDRESS}`);
 });
