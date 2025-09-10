@@ -1,29 +1,26 @@
 require("dotenv").config();
 const express = require("express");
 const { ethers } = require("ethers");
-const cors = require("cors");
 
 const app = express();
-app.use(express.json());
-app.use(cors());
+app.use(express.json()); // supaya bisa baca req.body
 
-// .env
+const PORT = process.env.PORT || 3000;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const RPC_URL = process.env.RPC_URL;
 const TOKEN_ADDRESS = process.env.TOKEN_CONTRACT;
 const CLAIM_AMOUNT = process.env.CLAIM_AMOUNT || "100";
 const CLAIM_DECIMALS = process.env.CLAIM_DECIMALS || 18;
-const PORT = process.env.PORT || 3000;
 
-// Provider & wallet
+// Provider + wallet
 const provider = new ethers.JsonRpcProvider(RPC_URL);
 const faucetWallet = new ethers.Wallet(PRIVATE_KEY, provider);
 
-// Token contract
-const abi = [
+// Token contract (ERC20 minimal ABI)
+const tokenAbi = [
   "function transfer(address to, uint256 amount) public returns (bool)"
 ];
-const token = new ethers.Contract(TOKEN_ADDRESS, abi, faucetWallet);
+const token = new ethers.Contract(TOKEN_ADDRESS, tokenAbi, faucetWallet);
 
 // --- GET untuk tes di browser ---
 app.get("/faucet", (req, res) => {
