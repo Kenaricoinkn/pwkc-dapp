@@ -59,6 +59,9 @@ function navigate(id) {
   if (id === "liquidity") {
   loadLiquidityUI();
 }
+ if (id === "staking") {
+  updateSwapPriceInfo();
+} 
 }
 
 function updateAuthUI() {
@@ -289,6 +292,7 @@ function swapTokens() {
 
   loadWallet();
   loadLiquidityUI();
+  updateSwapPriceInfo();
 }
 function updateSwapPriceInfo() {
   const pool = getLiquidity();
@@ -336,6 +340,7 @@ function addLiquidity() {
 
   loadWallet();
   loadLiquidityUI();
+  updateSwapPriceInfo();
   alert(`✅ Added Liquidity: ${knAmount} KN & ${usdcAmount} USDC`);
 }
 
@@ -368,6 +373,7 @@ function removeLiquidity() {
 
   loadWallet();
   loadLiquidityUI();
+  updateSwapPriceInfo();
   alert(`✅ Removed Liquidity: ${knOut.toFixed(2)} KN & ${usdcOut.toFixed(2)} USDC`);
 }
 
