@@ -212,37 +212,95 @@ function swapTokens() {
   if (!currentWallet) return alert("⚠️ Please login first.");
 
   const from = document.getElementById("swapFrom").value;
-  const amount = parseFloat(document.getElementById("swapAmount").value);
+  const amountIn = parseFloat(document.getElementById("swapAmount").value);
   const resultEl = document.getElementById("swapResult");
 
-  if (!amount || amount <= 0) {
+  if (!amountIn || amountIn <= 0) {
     resultEl.innerText = "⚠️ Enter valid amount.";
     return;
   }
 
-  const bal = getBalance(currentWallet);
+  let bal = getBalance(currentWallet);
+  let pool = getLiquidity();
 
   if (from === "USDC") {
-    if (bal.USDC < amount) {
+    if (bal.USDC < amountIn) {
       resultEl.innerText = "⚠️ Not enough USDC.";
       return;
     }
-    bal.USDC -= amount;
-    bal.KN += amount * 10;
+    if (pool.USDC <= 0 || pool.KN <= 0) {
+      resultEl.innerText = "⚠️ Pool is empty.";
+      return;
+    }
+
+    // rumus x*y=k
+    let usdcBefore = pool.USDC;
+    let knBefore = pool.KN;
+    let usdcAfter = usdcBefore + amountIn;
+    let knAfter = (usdcBefore * knBefore) / usdcAfter;
+    let amountOut = knBefore - knAfter;
+
+    if (amountOut <= 0) {
+      resultEl.innerText = "⚠️ Swap failed.";
+      return;
+    }
+
+    // update balances
+    bal.USDC -= amountIn;
+    bal.KN += amountOut;
     setBalance(currentWallet, bal);
-    resultEl.innerText = `✅ Swapped ${amount} USDC → ${amount * 10} KN`;
+
+    pool.USDC += amountIn;
+    pool.KN -= amountOut;
+    setLiquidity(pool);
+
+    resultEl.innerText = `✅ Swapped ${amountIn} USDC → ${amountOut.toFixed(2)} KN`;
   } else {
-    if (bal.KN < amount) {
+    if (bal.KN < amountIn) {
       resultEl.innerText = "⚠️ Not enough KN.";
       return;
     }
-    bal.KN -= amount;
-    bal.USDC += amount / 10;
+    if (pool.USDC <= 0 || pool.KN <= 0) {
+      resultEl.innerText = "⚠️ Pool is empty.";
+      return;
+    }
+
+    let knBefore = pool.KN;
+    let usdcBefore = pool.USDC;
+    let knAfter = knBefore + amountIn;
+    let usdcAfter = (knBefore * usdcBefore) / knAfter;
+    let amountOut = usdcBefore - usdcAfter;
+
+    if (amountOut <= 0) {
+      resultEl.innerText = "⚠️ Swap failed.";
+      return;
+    }
+
+    bal.KN -= amountIn;
+    bal.USDC += amountOut;
     setBalance(currentWallet, bal);
-    resultEl.innerText = `✅ Swapped ${amount} KN → ${(amount / 10).toFixed(2)} USDC`;
+
+    pool.KN += amountIn;
+    pool.USDC -= amountOut;
+    setLiquidity(pool);
+
+    resultEl.innerText = `✅ Swapped ${amountIn} KN → ${amountOut.toFixed(2)} USDC`;
   }
 
   loadWallet();
+  loadLiquidityUI();
+}
+function updateSwapPriceInfo() {
+  const pool = getLiquidity();
+  const el = document.getElementById("swapPriceInfo");
+  if (!el) return;
+
+  if (pool.KN > 0 && pool.USDC > 0) {
+    let price = pool.KN / pool.USDC;
+    el.innerText = `Current Price: 1 USDC ≈ ${price.toFixed(2)} KN`;
+  } else {
+    el.innerText = "Pool empty.";
+  }
 }
 // ==========================
 // LIQUIDITY
