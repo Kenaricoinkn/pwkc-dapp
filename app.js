@@ -17,7 +17,15 @@ const LS_KEYS = {
   FAUCET: "kn_faucet",         // {walletAddr: timestamp}
   LEADERBOARD: "kn_leaderboard"// [{username, walletAddr, staked}]
 };
+// LocalStorage Key untuk Pool
+const LIQUIDITY_KEY = "kn_liquidity"; // {KN: number, USDC: number, shares: {walletAddr: number}}
 
+function getLiquidity() {
+  return JSON.parse(localStorage.getItem(LIQUIDITY_KEY)) || { KN: 0, USDC: 0, shares: {} };
+}
+function setLiquidity(pool) {
+  localStorage.setItem(LIQUIDITY_KEY, JSON.stringify(pool));
+}
 // ==========================
 // Util LocalStorage
 // ==========================
@@ -48,6 +56,9 @@ function navigate(id) {
   if (id === "leaderboard") {
     loadLeaderboard();
   }
+  if (id === "liquidity") {
+  loadLiquidityUI();
+}
 }
 
 function updateAuthUI() {
@@ -133,6 +144,7 @@ window.onload = () => {
     loadWallet();
     updateActiveStakingUI();
     loadLeaderboard();
+    loadLiquidityUI();
   } else {
     updateAuthUI();
     navigate("login");
@@ -232,7 +244,89 @@ function swapTokens() {
 
   loadWallet();
 }
+// ==========================
+// LIQUIDITY
+// ==========================
+function addLiquidity() {
+  if (!currentWallet) return alert("⚠️ Please login first.");
 
+  const knAmount = parseFloat(document.getElementById("liqKN").value);
+  const usdcAmount = parseFloat(document.getElementById("liqUSDC").value);
+
+  if (isNaN(knAmount) || isNaN(usdcAmount) || knAmount <= 0 || usdcAmount <= 0) {
+    alert("⚠️ Enter valid amounts!");
+    return;
+  }
+
+  let bal = getBalance(currentWallet);
+  if (bal.KN < knAmount || bal.USDC < usdcAmount) {
+    alert("⚠️ Not enough balance!");
+    return;
+  }
+
+  // kurangi saldo user
+  bal.KN -= knAmount;
+  bal.USDC -= usdcAmount;
+  setBalance(currentWallet, bal);
+
+  // update pool
+  let pool = getLiquidity();
+  pool.KN += knAmount;
+  pool.USDC += usdcAmount;
+  pool.shares[currentWallet] = (pool.shares[currentWallet] || 0) + (knAmount + usdcAmount);
+  setLiquidity(pool);
+
+  loadWallet();
+  loadLiquidityUI();
+  alert(`✅ Added Liquidity: ${knAmount} KN & ${usdcAmount} USDC`);
+}
+
+function removeLiquidity() {
+  if (!currentWallet) return alert("⚠️ Please login first.");
+  let pool = getLiquidity();
+  let share = pool.shares[currentWallet] || 0;
+
+  if (share <= 0) {
+    alert("⚠️ You have no liquidity to remove!");
+    return;
+  }
+
+  // distribusi proporsional
+  let totalShares = Object.values(pool.shares).reduce((a, b) => a + b, 0);
+  let knOut = (share / totalShares) * pool.KN;
+  let usdcOut = (share / totalShares) * pool.USDC;
+
+  // kurangi pool
+  pool.KN -= knOut;
+  pool.USDC -= usdcOut;
+  delete pool.shares[currentWallet];
+  setLiquidity(pool);
+
+  // kembalikan ke saldo user
+  let bal = getBalance(currentWallet);
+  bal.KN += knOut;
+  bal.USDC += usdcOut;
+  setBalance(currentWallet, bal);
+
+  loadWallet();
+  loadLiquidityUI();
+  alert(`✅ Removed Liquidity: ${knOut.toFixed(2)} KN & ${usdcOut.toFixed(2)} USDC`);
+}
+
+function loadLiquidityUI() {
+  const pool = getLiquidity();
+  const el = document.getElementById("liquidityInfo");
+  if (!el) return;
+
+  let myShare = pool.shares[currentWallet] || 0;
+  let totalShares = Object.values(pool.shares).reduce((a, b) => a + b, 0);
+
+  el.innerHTML = `
+    <p><strong>Pool KN:</strong> ${pool.KN}</p>
+    <p><strong>Pool USDC:</strong> ${pool.USDC}</p>
+    <p><strong>Your Share:</strong> ${myShare} (${totalShares > 0 ? ((myShare / totalShares) * 100).toFixed(2) : 0}%)</p>
+  `;
+}
 // ==========================
 // STAKING
 // ==========================
