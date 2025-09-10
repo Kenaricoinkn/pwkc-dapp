@@ -148,6 +148,8 @@ window.onload = () => {
     updateActiveStakingUI();
     loadLeaderboard();
     loadLiquidityUI();
+    updateSwapPriceInfo();
+    
   } else {
     updateAuthUI();
     navigate("login");
