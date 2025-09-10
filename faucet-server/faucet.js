@@ -10,7 +10,7 @@ const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const RPC_URL = process.env.RPC_URL;
 const TOKEN_ADDRESS = process.env.TOKEN_CONTRACT;
 const CLAIM_AMOUNT = process.env.CLAIM_AMOUNT || "100";
-const CLAIM_DECIMALS = process.env.CLAIM_DECIMALS || 18;
+const CLAIM_DECIMALS = Number(process.env.CLAIM_DECIMALS) || 6;
 
 // Provider + wallet
 const provider = new ethers.JsonRpcProvider(RPC_URL);
