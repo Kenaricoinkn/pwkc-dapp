@@ -5,9 +5,19 @@
 // State aktif
 let currentWallet = null;
 let currentUser = null;
-
+const FAUCET_API_URL = "http://localhost:3000/faucet"; 
+const LS_KEYS = {
+// kalau deploy ke VPS, ganti jadi https://domainkamu.com/faucet
+  USERS: "kenariUsers",        // [{username, walletAddr}]
+  ACTIVE: "activeUser",        // "0xabc..."
+  BALANCES: "kn_balances",     // {walletAddr: {KN, USDC}}
+  STAKED: "kn_staked",         // {walletAddr: number}
+  FAUCET: "kn_faucet",         // {walletAddr: timestamp}
+  LEADERBOARD: "kn_leaderboard"// [{username, walletAddr, staked}]
+};
 // Kunci LocalStorage
 const LS_KEYS = {
+// kalau deploy ke VPS, ganti jadi https://domainkamu.com/faucet
   USERS: "kenariUsers",        // [{username, walletAddr}]
   ACTIVE: "activeUser",        // "0xabc..."
   BALANCES: "kn_balances",     // {walletAddr: {KN, USDC}}
@@ -187,6 +197,8 @@ function loadWallet() {
     <p><strong>Balance USDC:</strong> ${bal.USDC} USDC</p>
     <p><strong>Staked:</strong> ${st} KN</p>
   `;
+  const faucetInput = document.getElementById("faucetAddressInput");
+if (faucetInput) faucetInput.value = currentWallet || "";
 }
 
 // ==========================
@@ -302,27 +314,49 @@ function updateActiveStakingUI() {
 // ==========================
 // FAUCET
 // ==========================
-function claimFaucet() {
-  if (!currentWallet) return alert("⚠️ Please login first.");
-
-  const now = Date.now();
+async function claimFaucet() {
+  const addrInput = document.getElementById("faucetAddressInput");
   const resultEl = document.getElementById("faucetResult");
-  const last = getFaucetTime(currentWallet);
+  const btn = document.getElementById("claimFaucetBtn");
 
-  const DAY_MS = 24 * 60 * 60 * 1000;
-  if (last && now - last < DAY_MS) {
-    const sisa = Math.ceil((DAY_MS - (now - last)) / (60 * 1000));
-    resultEl.innerText = `⚠️ Faucet already claimed. Try again in ~${sisa} minutes.`;
+  resultEl.innerText = "";
+
+  // Ambil dari input atau currentWallet
+  const address = (addrInput && addrInput.value.trim()) || (currentWallet || "");
+  if (!address) {
+    resultEl.innerText = "⚠️ Please enter/paste a BSC Testnet address first.";
     return;
   }
 
-  const bal = getBalance(currentWallet);
-  bal.KN += 100;
-  setBalance(currentWallet, bal);
+  if (btn) {
+    btn.disabled = true;
+    btn.innerText = "Claiming...";
+  }
 
-  setFaucetTime(currentWallet, now);
-  resultEl.innerText = "✅ You claimed 100 KN from faucet!";
-  loadWallet();
+  try {
+    const res = await fetch(FAUCET_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ address })
+    });
+
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      resultEl.innerHTML = `✅ 100 KN sent! 
+        <a href="https://testnet.bscscan.com/tx/${data.txHash}" target="_blank">View Tx</a>`;
+    } else {
+      resultEl.innerText = `⚠️ ${data.error || "Faucet failed"}`;
+    }
+  } catch (err) {
+    console.error("Faucet frontend error:", err);
+    resultEl.innerText = "⚠️ Error connecting to faucet server.";
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = "Claim Faucet";
+    }
+  }
 }
 
 // ==========================
