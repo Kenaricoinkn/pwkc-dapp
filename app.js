@@ -7,7 +7,7 @@ let currentWallet = null;
 let currentUser = null;
 
 // const FAUCET_API_URL = "http://localhost:3000/faucet";
-const FAUCET_API_URL = "https://carolina-nato-adventures-possess.trycloudflare.com/faucet";
+const FAUCET_API_URL = "https://kenari-faucet-server-production.up.railway.app/faucet";
 // Kunci LocalStorage
 const LS_KEYS = {
   USERS: "kenariUsers",        // [{username, walletAddr}]
