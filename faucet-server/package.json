@@ -1,14 +1,13 @@
 {
-  "name": "kn-faucet-server",
+  "name": "kenari-faucet",
   "version": "1.0.0",
-  "type": "module",
+  "main": "faucet.js",
   "scripts": {
     "start": "node faucet.js"
   },
   "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^16.0.0",
-    "ethers": "^6.7.0",
-    "express": "^4.18.2"
+    "dotenv": "^17.2.2",
+    "express": "^4.18.2",
+    "ethers": "^6.15.0"
   }
 }
