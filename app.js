@@ -6,10 +6,8 @@
 let currentWallet = null;
 let currentUser = null;
 
-// API Faucet (ubah ke domain server kamu kalau deploy ke VPS)
 // const FAUCET_API_URL = "http://localhost:3000/faucet";
-const FAUCET_API_URL = "https://applicable-dependent-cutting-coordinate.trycloudflare.com/faucet";
-
+const FAUCET_API_URL = "https://biblical-grid-valium-tonight.trycloudflare.com/faucet";
 // Kunci LocalStorage
 const LS_KEYS = {
   USERS: "kenariUsers",        // [{username, walletAddr}]
